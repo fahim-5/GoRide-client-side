@@ -1,91 +1,158 @@
-import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false)
-  const location = useLocation()
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const navigation = [
-    { name: 'Home', href: '/' },
-    { name: 'About', href: '/about' },
-  ]
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          {/* Logo */}
-          <div className="flex items-center">
-            <Link to="/" className="flex-shrink-0 flex items-center">
-              <div className="h-8 w-8 bg-primary-600 rounded-lg"></div>
-              <span className="ml-2 text-xl font-bold text-gray-900">Template</span>
+      <div className="container mx-auto px-4">
+        <div className="flex justify-between items-center py-4">
+          <Link to="/" className="text-2xl font-bold text-blue-600">
+            GoRide
+          </Link>
+
+          <div className="hidden md:flex space-x-8">
+            <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors">
+              Home
             </Link>
+            <Link to="/vehicles" className="text-gray-700 hover:text-blue-600 transition-colors">
+              All Vehicles
+            </Link>
+            {user && (
+              <>
+                <Link to="/add-vehicle" className="text-gray-700 hover:text-blue-600 transition-colors">
+                  Add Vehicle
+                </Link>
+                <Link to="/my-vehicles" className="text-gray-700 hover:text-blue-600 transition-colors">
+                  My Vehicles
+                </Link>
+                <Link to="/my-bookings" className="text-gray-700 hover:text-blue-600 transition-colors">
+                  My Bookings
+                </Link>
+              </>
+            )}
           </div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={`${
-                  location.pathname === item.href
-                    ? 'text-primary-600 border-b-2 border-primary-600'
-                    : 'text-gray-700 hover:text-primary-600'
-                } px-3 py-2 text-sm font-medium transition-colors duration-200`}
-              >
-                {item.name}
-              </Link>
-            ))}
-            <button className="btn-primary text-sm">
-              Get Started
-            </button>
+          <div className="hidden md:flex items-center space-x-4">
+            {user ? (
+              <div className="flex items-center space-x-4">
+                <div className="relative group">
+                  <div className="flex items-center space-x-2 cursor-pointer">
+                    <img 
+                      src={user.photoURL || '/default-avatar.png'} 
+                      alt={user.displayName || 'User'} 
+                      className="w-8 h-8 rounded-full"
+                    />
+                    <span className="text-gray-700">{user.displayName || 'User'}</span>
+                  </div>
+                </div>
+                <button 
+                  onClick={handleLogout}
+                  className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="flex space-x-4">
+                <Link 
+                  to="/login" 
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Login
+                </Link>
+                <Link 
+                  to="/register" 
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  Register
+                </Link>
+              </div>
+            )}
           </div>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-primary-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500"
-            >
-              <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                {isOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
-            </button>
-          </div>
+          <button 
+            className="md:hidden text-gray-700"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
         </div>
 
-        {/* Mobile Navigation */}
-        {isOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  onClick={() => setIsOpen(false)}
-                  className={`${
-                    location.pathname === item.href
-                      ? 'bg-primary-50 text-primary-600'
-                      : 'text-gray-700 hover:bg-gray-50 hover:text-primary-600'
-                  } block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200`}
-                >
-                  {item.name}
-                </Link>
-              ))}
-              <button className="w-full mt-2 btn-primary text-sm">
-                Get Started
-              </button>
+        {isMenuOpen && (
+          <div className="md:hidden py-4 border-t border-gray-200">
+            <div className="flex flex-col space-y-4">
+              <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors">
+                Home
+              </Link>
+              <Link to="/vehicles" className="text-gray-700 hover:text-blue-600 transition-colors">
+                All Vehicles
+              </Link>
+              {user && (
+                <>
+                  <Link to="/add-vehicle" className="text-gray-700 hover:text-blue-600 transition-colors">
+                    Add Vehicle
+                  </Link>
+                  <Link to="/my-vehicles" className="text-gray-700 hover:text-blue-600 transition-colors">
+                    My Vehicles
+                  </Link>
+                  <Link to="/my-bookings" className="text-gray-700 hover:text-blue-600 transition-colors">
+                    My Bookings
+                  </Link>
+                </>
+              )}
+              {user ? (
+                <div className="flex items-center space-x-2 pt-4 border-t border-gray-200">
+                  <img 
+                    src={user.photoURL || '/default-avatar.png'} 
+                    alt={user.displayName || 'User'} 
+                    className="w-6 h-6 rounded-full"
+                  />
+                  <span className="text-gray-700">{user.displayName || 'User'}</span>
+                  <button 
+                    onClick={handleLogout}
+                    className="ml-auto bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors"
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <div className="flex space-x-2 pt-4 border-t border-gray-200">
+                  <Link 
+                    to="/login" 
+                    className="flex-1 bg-blue-600 text-white px-3 py-2 rounded text-center hover:bg-blue-700 transition-colors"
+                  >
+                    Login
+                  </Link>
+                  <Link 
+                    to="/register" 
+                    className="flex-1 bg-green-600 text-white px-3 py-2 rounded text-center hover:bg-green-700 transition-colors"
+                  >
+                    Register
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         )}
       </div>
     </nav>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;
