@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // <--- Import useNavigate
 import { useAuth } from '../../context/AuthContext';
 
 
 const LoginForm = () => {
+  const navigate = useNavigate(); // <--- Initialize useNavigate hook
+  
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -47,6 +49,8 @@ const LoginForm = () => {
     
     try {
       await login(formData.email, formData.password);
+      // SUCCESS: Navigate to the home route (which maps to http://localhost:5173/)
+      navigate('/'); 
     } catch (error) {
       setErrors({ general: error.message });
     }
@@ -55,6 +59,8 @@ const LoginForm = () => {
   const handleGoogleLogin = async () => {
     try {
       await loginWithGoogle();
+      // SUCCESS: Navigate to the home route
+      navigate('/'); 
     } catch (error) {
       setErrors({ general: error.message });
     }
