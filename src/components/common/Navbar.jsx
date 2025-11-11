@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import Register from './../../pages/Auth/Register';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -166,7 +167,7 @@ const Navbar = () => {
                   to="/register" 
                   className="px-6 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white font-medium rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                 >
-                  Get Started
+                  Register
                 </Link>
               </div>
             )}

@@ -1,13 +1,7 @@
 import LoginForm from '../../components/forms/LoginForm';
 
 const Login = () => {
-  return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="container mx-auto px-4">
-        <LoginForm />
-      </div>
-    </div>
-  );
+  return <LoginForm />;
 };
 
 export default Login;
