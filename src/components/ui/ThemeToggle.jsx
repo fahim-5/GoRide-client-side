@@ -1,6 +1,6 @@
-// components/ThemeToggle.jsx
+// components/ui/ThemeToggle.jsx
 import React from 'react';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../../context/ThemeContext';
 
 const ThemeToggle = () => {
   const { isDark, toggleTheme } = useTheme();
@@ -13,6 +13,7 @@ const ThemeToggle = () => {
         transition-colors duration-300 ease-in-out
         ${isDark ? 'bg-blue-600' : 'bg-gray-300'}
         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+        ${isDark ? 'focus:ring-offset-gray-900' : 'focus:ring-offset-white'}
       `}
       aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
     >
@@ -21,9 +22,9 @@ const ThemeToggle = () => {
           inline-block h-4 w-4 transform rounded-full bg-white 
           transition-transform duration-300 ease-in-out
           ${isDark ? 'translate-x-6' : 'translate-x-1'}
+          flex items-center justify-center
         `}
       >
-        {/* Sun/Moon Icons */}
         {isDark ? (
           // Moon icon for dark mode
           <svg className="h-3 w-3 text-gray-800" fill="currentColor" viewBox="0 0 20 20">

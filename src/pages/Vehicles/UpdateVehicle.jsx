@@ -9,7 +9,7 @@ import { useVehicles } from '../hooks/useVehicles';
 const UpdateVehicle = () => {
   const { id } = useParams();
   const { user } = useAuth();
-  const { getVehicle, updateVehicle, loading } = useVehicles();
+  const { getVehicleById, updateVehicle, loading } = useVehicles(); // ✅ CHANGED: getVehicleById instead of getVehicle
   const navigate = useNavigate();
   const [vehicle, setVehicle] = useState(null);
   const [fetchLoading, setFetchLoading] = useState(true);
@@ -23,28 +23,41 @@ const UpdateVehicle = () => {
         setFetchLoading(true);
         setUpdateError('');
         
-        console.log('Fetching vehicle for update:', id);
-        const vehicleData = await getVehicle(id);
+        console.log('🔄 Fetching vehicle for update:', id);
+        console.log('👤 Current user:', user.email);
+        
+        // ✅ CHANGED: Use getVehicleById instead of getVehicle
+        const vehicleData = await getVehicleById(id);
+        
+        console.log('📦 Vehicle data received:', vehicleData);
         
         // Check if vehicle exists
         if (!vehicleData) {
+          console.log('❌ Vehicle not found with ID:', id);
           toast.error('Vehicle not found.');
           navigate('/my-vehicles');
           return;
         }
         
         // Check if user is the owner
+        console.log('🔐 Ownership check:', {
+          vehicleOwner: vehicleData.userEmail,
+          currentUser: user.email,
+          isOwner: vehicleData.userEmail === user.email
+        });
+        
         if (vehicleData.userEmail !== user.email) {
+          console.log('🚫 User is not the owner of this vehicle');
           toast.error('You can only update your own vehicles.');
           navigate('/my-vehicles');
           return;
         }
         
-        console.log('Vehicle data loaded:', vehicleData);
+        console.log('✅ Vehicle loaded successfully:', vehicleData);
         setVehicle(vehicleData);
       } catch (error) {
-        console.error('Error fetching vehicle:', error);
-        const errorMessage = error.response?.data?.message || 'Vehicle not found or access denied.';
+        console.error('❌ Error fetching vehicle:', error);
+        const errorMessage = error.response?.data?.message || error.message || 'Vehicle not found or access denied.';
         setUpdateError(errorMessage);
         toast.error(errorMessage);
         navigate('/my-vehicles');
@@ -54,19 +67,19 @@ const UpdateVehicle = () => {
     };
 
     fetchVehicle();
-  }, [id, user, getVehicle, navigate]);
+  }, [id, user, getVehicleById, navigate]); // ✅ CHANGED: getVehicleById in dependencies
 
   const handleSubmit = async (vehicleData) => {
     try {
       setUpdateError('');
-      console.log('Updating vehicle with data:', vehicleData);
+      console.log('🔄 Updating vehicle with data:', vehicleData);
       
       await updateVehicle(id, vehicleData);
       toast.success('Vehicle updated successfully!');
       navigate('/my-vehicles');
     } catch (error) {
-      console.error('Update error:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to update vehicle. Please try again.';
+      console.error('❌ Update error:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to update vehicle. Please try again.';
       setUpdateError(errorMessage);
       toast.error(errorMessage);
     }
@@ -101,7 +114,10 @@ const UpdateVehicle = () => {
   if (fetchLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
-        <LoadingSpinner />
+        <div className="text-center">
+          <LoadingSpinner />
+          <p className="mt-4 text-gray-600 text-lg">Loading vehicle details...</p>
+        </div>
       </div>
     );
   }
@@ -140,9 +156,6 @@ const UpdateVehicle = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
-          {/* Header Section */}
-          
-
           {/* Main Content Card */}
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
             {/* Header Bar */}

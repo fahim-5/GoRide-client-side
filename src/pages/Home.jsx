@@ -13,16 +13,56 @@ const Home = () => {
   useEffect(() => {
     const fetchLatestVehicles = async () => {
       try {
-        const vehicles = await getLatestVehicles();
-        // Get latest 6 vehicles as required
-        setLatestVehicles(vehicles.slice(0, 6));
+        console.log('🔄 Fetching latest vehicles...');
+        const response = await getLatestVehicles();
+        console.log('📦 Raw API response:', response);
+        
+        // ✅ SAFE DATA PROCESSING - Handle different response formats
+        let vehiclesArray = [];
+        
+        if (Array.isArray(response)) {
+          // Case 1: Response is already an array
+          vehiclesArray = response;
+          console.log('✅ Using response as direct array');
+        } else if (response && response.success && Array.isArray(response.data)) {
+          // Case 2: { success: true, data: [], count: number }
+          vehiclesArray = response.data;
+          console.log('✅ Using response.data from success object');
+        } else if (response && Array.isArray(response.data)) {
+          // Case 3: { data: [], count: number }
+          vehiclesArray = response.data;
+          console.log('✅ Using response.data from data object');
+        } else if (response && Array.isArray(response.vehicles)) {
+          // Case 4: { vehicles: [] }
+          vehiclesArray = response.vehicles;
+          console.log('✅ Using response.vehicles');
+        } else {
+          // Case 5: Unexpected format or empty
+          console.warn('❌ Unexpected response format:', response);
+          vehiclesArray = [];
+        }
+        
+        // Get latest 6 vehicles and ensure they're valid
+        const validVehicles = vehiclesArray
+          .filter(vehicle => vehicle && vehicle._id) // Filter out invalid vehicles
+          .slice(0, 6); // Take first 6
+        
+        console.log('🚗 Final 6 vehicles:', validVehicles);
+        setLatestVehicles(validVehicles);
+        
       } catch (error) {
-        console.error('Error fetching vehicles:', error);
+        console.error('❌ Error fetching vehicles:', error);
         setLatestVehicles([]);
       }
     };
+    
     fetchLatestVehicles();
   }, [getLatestVehicles]);
+
+  // Debug: Log current state
+  useEffect(() => {
+    console.log('📊 Current latestVehicles state:', latestVehicles);
+  }, [latestVehicles]);
 
   return (
     <div className="min-h-screen">
@@ -126,22 +166,30 @@ const Home = () => {
           {loading ? (
             <div className="flex justify-center items-center py-32">
               <LoadingSpinner />
+              <span className="ml-3 text-gray-600">Loading latest vehicles...</span>
             </div>
           ) : latestVehicles.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-              {latestVehicles.map((vehicle, index) => (
-                <div
-                  key={vehicle._id}
-                  className="group relative rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-white"
-                >
-                  {/* New badge for recently added vehicles */}
-                  <div className="absolute top-4 left-4 z-10 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
-                    NEW
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+                {latestVehicles.map((vehicle, index) => (
+                  <div
+                    key={vehicle._id || index}
+                    className="group relative rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 bg-white"
+                  >
+                    {/* New badge for recently added vehicles */}
+                    <div className="absolute top-4 left-4 z-10 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
+                      NEW
+                    </div>
+                    <VehicleCard vehicle={vehicle} />
                   </div>
-                  <VehicleCard vehicle={vehicle} />
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+              
+              {/* Debug info - remove in production */}
+              <div className="text-center text-sm text-gray-500 mb-4">
+                Showing {latestVehicles.length} vehicle{latestVehicles.length !== 1 ? 's' : ''}
+              </div>
+            </>
           ) : (
             <div className="text-center py-24 bg-white/80 backdrop-blur-md rounded-3xl shadow-lg border border-gray-200/50">
               <div className="relative w-32 h-32 bg-gradient-to-br from-green-100 to-green-100 rounded-full flex items-center justify-center mx-auto mb-8">
@@ -171,6 +219,7 @@ const Home = () => {
         </div>
       </section>
 
+      {/* ... rest of your existing static sections remain the same ... */}
       {/* STATIC SECTION 1 - Top Categories */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">

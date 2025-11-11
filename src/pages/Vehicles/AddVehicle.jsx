@@ -8,7 +8,7 @@ import LoadingSpinner from '../../components/common/LoadingSpinner';
 
 const AddVehicle = () => {
   const { user } = useAuth();
-  const { addVehicle, loading, error, clearError } = useVehicles();
+  const { createVehicle, loading, error, clearError } = useVehicles(); // ✅ Changed from addVehicle to createVehicle
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,7 +20,7 @@ const AddVehicle = () => {
   const handleSubmit = async (vehicleData) => {
     try {
       console.log('Adding vehicle with data:', vehicleData);
-      await addVehicle(vehicleData);
+      await createVehicle(vehicleData); // ✅ Changed from addVehicle to createVehicle
       toast.success('Vehicle added successfully!');
       navigate('/my-vehicles');
     } catch (error) {

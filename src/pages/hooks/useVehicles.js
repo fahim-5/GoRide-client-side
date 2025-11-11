@@ -1,42 +1,21 @@
 import { useState, useCallback } from 'react';
-import { 
-  getAllVehicles as getAllVehiclesService, 
-  getVehicleById as getVehicleByIdService,
-  getMyVehicles as getMyVehiclesService, 
-  createVehicle as createVehicleService, 
-  updateVehicle as updateVehicleService, 
-  deleteVehicle as deleteVehicleService 
-} from '../services/vehicleService';
+import * as vehicleService from '../services/vehicleService';
 
 export const useVehicles = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Get single vehicle by ID
-  const getVehicleById = useCallback(async (id) => {
+  // Create a new vehicle
+  const createVehicle = useCallback(async (vehicleData) => {
     setLoading(true);
     setError(null);
     try {
-      const vehicle = await getVehicleByIdService(id);
-      return vehicle;
+      const newVehicle = await vehicleService.createVehicle(vehicleData);
+      return newVehicle;
     } catch (err) {
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  // Get all vehicles with optional filters
-  const getAllVehicles = useCallback(async (filters = {}) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const vehicles = await getAllVehiclesService(filters);
-      return vehicles;
-    } catch (err) {
-      setError(err.message);
-      throw err;
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to create vehicle';
+      setError(errorMessage);
+      throw new Error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -47,41 +26,30 @@ export const useVehicles = () => {
     setLoading(true);
     setError(null);
     try {
-      const vehicles = await getMyVehiclesService();
+      const vehicles = await vehicleService.getMyVehicles();
       return vehicles;
     } catch (err) {
-      setError(err.message);
-      throw err;
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch your vehicles';
+      setError(errorMessage);
+      throw new Error(errorMessage);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Create a new vehicle
-  const createVehicle = useCallback(async (vehicleData) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const newVehicle = await createVehicleService(vehicleData);
-      return newVehicle;
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  // Update an existing vehicle
+  // ✅ ADDED: Update an existing vehicle
   const updateVehicle = useCallback(async (id, vehicleData) => {
     setLoading(true);
     setError(null);
     try {
-      const updatedVehicle = await updateVehicleService(id, vehicleData);
+      console.log('🔄 useVehicles: Updating vehicle', id, vehicleData);
+      const updatedVehicle = await vehicleService.updateVehicle(id, vehicleData);
       return updatedVehicle;
     } catch (err) {
-      setError(err.message);
-      throw err;
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to update vehicle';
+      console.error('❌ useVehicles update error:', errorMessage);
+      setError(errorMessage);
+      throw new Error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -92,11 +60,44 @@ export const useVehicles = () => {
     setLoading(true);
     setError(null);
     try {
-      const result = await deleteVehicleService(id);
+      const result = await vehicleService.deleteVehicle(id);
       return result;
     } catch (err) {
-      setError(err.message);
-      throw err;
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to delete vehicle';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Get single vehicle by ID
+  const getVehicleById = useCallback(async (id) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const vehicle = await vehicleService.getVehicleById(id);
+      return vehicle;
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch vehicle';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Get all vehicles with optional filters
+  const getAllVehicles = useCallback(async (filters = {}) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const vehicles = await vehicleService.getAllVehicles(filters);
+      return vehicles;
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch vehicles';
+      setError(errorMessage);
+      throw new Error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -114,7 +115,7 @@ export const useVehicles = () => {
     getAllVehicles,
     getMyVehicles,
     createVehicle,
-    updateVehicle,
+    updateVehicle, // ✅ ADDED: Make sure this is returned
     deleteVehicle,
     clearError
   };
