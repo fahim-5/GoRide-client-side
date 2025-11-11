@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import { createBooking, getBookingsByUser } from '../services/bookingService';
+import { 
+  createBooking as createBookingService, // Renamed
+  getBookingsByUser as getBookingsByUserService // Renamed
+} from '../services/bookingService'; // Ensure this path is correct
 
 export const useBookings = () => {
   const [loading, setLoading] = useState(false);
@@ -7,7 +10,8 @@ export const useBookings = () => {
   const createBooking = async (bookingData) => {
     setLoading(true);
     try {
-      const response = await createBooking(bookingData);
+      // Calls the renamed service function
+      const response = await createBookingService(bookingData); 
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to create booking');
@@ -19,7 +23,8 @@ export const useBookings = () => {
   const getMyBookings = async (userEmail) => {
     setLoading(true);
     try {
-      const response = await getBookingsByUser(userEmail);
+      // Calls the renamed service function
+      const response = await getBookingsByUserService(userEmail); 
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to fetch bookings');

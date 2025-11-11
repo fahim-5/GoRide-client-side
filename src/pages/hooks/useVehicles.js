@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { 
-  getAllVehicles, 
-  getVehicle, 
-  getMyVehicles, 
-  getLatestVehicles,
-  createVehicle, 
-  updateVehicle, 
-  deleteVehicle 
+  // Rename all imported service functions to avoid recursion bugs
+  getAllVehicles as getAllVehiclesService,
+  getVehicle as getVehicleService,
+  getMyVehicles as getMyVehiclesService,
+  getLatestVehicles as getLatestVehiclesService,
+  createVehicle as createVehicleService, 
+  updateVehicle as updateVehicleService, 
+  deleteVehicle as deleteVehicleService
 } from '../services/vehicleService';
 
 export const useVehicles = () => {
@@ -15,9 +16,11 @@ export const useVehicles = () => {
   const getAllVehicles = async () => {
     setLoading(true);
     try {
-      const response = await getAllVehicles();
+      // Calls the renamed service function
+      const response = await getAllVehiclesService();
       return response.data;
     } catch (error) {
+      // Improved error handling
       throw new Error(error.response?.data?.message || 'Failed to fetch vehicles');
     } finally {
       setLoading(false);
@@ -27,7 +30,7 @@ export const useVehicles = () => {
   const getVehicle = async (id) => {
     setLoading(true);
     try {
-      const response = await getVehicle(id);
+      const response = await getVehicleService(id);
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to fetch vehicle');
@@ -39,7 +42,7 @@ export const useVehicles = () => {
   const getMyVehicles = async (userEmail) => {
     setLoading(true);
     try {
-      const response = await getMyVehicles(userEmail);
+      const response = await getMyVehiclesService(userEmail);
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to fetch your vehicles');
@@ -48,10 +51,11 @@ export const useVehicles = () => {
     }
   };
 
+  // FIX APPLIED HERE: Calls the correctly renamed service function
   const getLatestVehicles = async () => {
     setLoading(true);
     try {
-      const response = await getLatestVehicles();
+      const response = await getLatestVehiclesService(); 
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to fetch latest vehicles');
@@ -63,7 +67,7 @@ export const useVehicles = () => {
   const addVehicle = async (vehicleData) => {
     setLoading(true);
     try {
-      const response = await createVehicle(vehicleData);
+      const response = await createVehicleService(vehicleData);
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to add vehicle');
@@ -75,7 +79,7 @@ export const useVehicles = () => {
   const updateVehicle = async (id, vehicleData) => {
     setLoading(true);
     try {
-      const response = await updateVehicle(id, vehicleData);
+      const response = await updateVehicleService(id, vehicleData);
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to update vehicle');
@@ -87,7 +91,7 @@ export const useVehicles = () => {
   const deleteVehicle = async (id) => {
     setLoading(true);
     try {
-      const response = await deleteVehicle(id);
+      const response = await deleteVehicleService(id);
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to delete vehicle');

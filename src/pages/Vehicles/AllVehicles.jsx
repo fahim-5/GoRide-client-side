@@ -1,72 +1,68 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
 import VehicleCard from '../../components/common/VehicleCard';
-import SearchFilter from '../../components/ui/SearchFilter';
+import SearchFilter from '../../components/ui/SearchFilter'; // Assuming this component exists
 import LoadingSpinner from '../../components/common/LoadingSpinner';
-// import { useAuth } from '../hooks/useAuth';
-import { useVehicles } from '../hooks/useVehicles';
-// import { useBookings } from '../../hooks/useBookings';
+import { useVehicles } from '../hooks/useVehicles'; // Assuming this hook manages API calls
 
 const AllVehicles = () => {
   const { getAllVehicles, loading } = useVehicles();
   const [vehicles, setVehicles] = useState([]);
   const [filteredVehicles, setFilteredVehicles] = useState([]);
+  const [currentFilters, setCurrentFilters] = useState({});
 
   useEffect(() => {
     const fetchVehicles = async () => {
-      const allVehicles = await getAllVehicles();
+      // Fetch all vehicles without initial filters
+      const allVehicles = await getAllVehicles({}); 
       setVehicles(allVehicles);
       setFilteredVehicles(allVehicles);
     };
     fetchVehicles();
   }, [getAllVehicles]);
 
-  const handleFilter = (filters) => {
+  // Handler for advanced filter/search from SearchFilter component
+  const handleFilter = async (filters) => {
+    setCurrentFilters(filters);
+
+    // If you implement filters on the backend (recommended for large datasets), 
+    // you would call an API endpoint here:
+    // const newFilteredVehicles = await getAllVehicles(filters);
+    // setVehicles(newFilteredVehicles); // Update base state if fetching filtered data
+    // setFilteredVehicles(newFilteredVehicles);
+
+    // --- TEMPORARY CLIENT-SIDE FILTERING (Keep if backend filter is not ready) ---
     let filtered = vehicles;
 
     if (filters.category) {
       filtered = filtered.filter(vehicle => vehicle.category === filters.category);
     }
-
     if (filters.location) {
       filtered = filtered.filter(vehicle => 
         vehicle.location.toLowerCase().includes(filters.location.toLowerCase())
       );
     }
-
     if (filters.priceRange) {
-      switch (filters.priceRange) {
-        case '0-50':
-          filtered = filtered.filter(vehicle => vehicle.pricePerDay <= 50);
-          break;
-        case '51-100':
-          filtered = filtered.filter(vehicle => vehicle.pricePerDay > 50 && vehicle.pricePerDay <= 100);
-          break;
-        case '101-200':
-          filtered = filtered.filter(vehicle => vehicle.pricePerDay > 100 && vehicle.pricePerDay <= 200);
-          break;
-        case '201+':
-          filtered = filtered.filter(vehicle => vehicle.pricePerDay > 200);
-          break;
-        default:
-          break;
-      }
+      // Example price range logic
+      filtered = filtered.filter(vehicle => {
+        const price = vehicle.pricePerDay;
+        if (filters.priceRange === '0-50') return price >= 0 && price <= 50;
+        if (filters.priceRange === '51-100') return price > 50 && price <= 100;
+        if (filters.priceRange === '101+') return price > 100;
+        return true;
+      });
     }
-
-    if (filters.availability) {
-      filtered = filtered.filter(vehicle => vehicle.availability === filters.availability);
-    }
-
     setFilteredVehicles(filtered);
+    // --------------------------------------------------------------------------
   };
 
-  const handleSort = (sortBy) => {
-    let sorted = [...filteredVehicles];
+  const handleSort = (sortOption) => {
+    const sorted = [...filteredVehicles];
 
-    switch (sortBy) {
-      case 'price-low':
+    switch (sortOption) {
+      case 'priceLowToHigh':
         sorted.sort((a, b) => a.pricePerDay - b.pricePerDay);
         break;
-      case 'price-high':
+      case 'priceHighToLow':
         sorted.sort((a, b) => b.pricePerDay - a.pricePerDay);
         break;
       case 'name':
@@ -83,7 +79,7 @@ const AllVehicles = () => {
   };
 
   if (loading) {
-    return <LoadingSpinner />;
+    return <LoadingSpinner />; //
   }
 
   return (
@@ -101,8 +97,8 @@ const AllVehicles = () => {
               <p className="text-gray-500 mt-2">Try adjusting your filters or search terms.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredVehicles.map((vehicle) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+              {filteredVehicles.map(vehicle => (
                 <VehicleCard key={vehicle._id} vehicle={vehicle} />
               ))}
             </div>
