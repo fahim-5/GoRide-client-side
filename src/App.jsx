@@ -30,7 +30,12 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/vehicles" element={<AllVehicles />} />
-                <Route path="/vehicle/:id" element={<VehicleDetails />} />
+                {/* ✅ Fixed: VehicleDetails should be private */}
+                <Route path="/vehicle/:id" element={
+                  <PrivateRoute>
+                    <VehicleDetails />
+                  </PrivateRoute>
+                } />
                 <Route path="/add-vehicle" element={
                   <PrivateRoute>
                     <AddVehicle />

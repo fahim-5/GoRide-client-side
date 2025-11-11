@@ -1,141 +1,427 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import BookingModal from '../../components/ui/BookingModal';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
-import { toast } from 'react-hot-toast';
-// Corrected to point two levels up to the context directory
-import { useAuth } from '../../context/AuthContext'; 
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { useVehicles } from '../hooks/useVehicles';
 import { useBookings } from '../hooks/useBookings';
+import { toast } from 'react-hot-toast';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
 
 const VehicleDetails = () => {
   const { id } = useParams();
-  const { user } = useAuth();
-  const { getVehicle, loading } = useVehicles();
-  const { createBooking } = useBookings();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { getVehicleById } = useVehicles();
+  const { createBooking } = useBookings();
   const [vehicle, setVehicle] = useState(null);
-  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const [activeImage, setActiveImage] = useState(0);
 
   useEffect(() => {
     const fetchVehicle = async () => {
       try {
-        const vehicleData = await getVehicle(id);
+        console.log('Fetching vehicle with ID:', id);
+        const vehicleData = await getVehicleById(id);
+        console.log('Vehicle data received:', vehicleData);
         setVehicle(vehicleData);
       } catch (error) {
-        // Log error for debugging, then show user feedback
-        console.error("Vehicle fetch failed:", error); 
-        toast.error('Vehicle not found.');
+        console.error('Error fetching vehicle:', error);
+        toast.error('Vehicle not found');
         navigate('/vehicles');
+      } finally {
+        setLoading(false);
       }
     };
-    fetchVehicle();
-  }, [id, getVehicle, navigate]);
 
-  const handleBookNow = () => {
+    if (id) {
+      fetchVehicle();
+    } else {
+      toast.error('Invalid vehicle ID');
+      navigate('/vehicles');
+    }
+  }, [id, getVehicleById, navigate]);
+
+  const handleBookNow = async () => {
     if (!user) {
-      toast.error('Please login to book a vehicle.');
+      toast.error('Please login to book this vehicle');
       navigate('/login');
       return;
     }
-    setShowBookingModal(true);
-  };
 
-  const handleBookingConfirm = async (bookingData) => {
+    if (!vehicle || vehicle.availability !== 'Available') {
+      toast.error('This vehicle is currently not available');
+      return;
+    }
+
     try {
-      await createBooking({
+      setBookingLoading(true);
+      
+      const startDate = new Date();
+      const endDate = new Date();
+      endDate.setDate(endDate.getDate() + 1);
+
+      const bookingData = {
         vehicleId: vehicle._id,
         userEmail: user.email,
-        ...bookingData
-      });
-      toast.success('Booking request submitted successfully!');
-      setShowBookingModal(false);
+        startDate: startDate.toISOString().split('T')[0],
+        endDate: endDate.toISOString().split('T')[0],
+        notes: 'Booking from Vehicle Details page',
+        totalPrice: vehicle.pricePerDay,
+        status: 'confirmed'
+      };
+
+      console.log('Creating booking with data:', bookingData);
+      await createBooking(bookingData);
+      toast.success('Vehicle booked successfully!');
+      
+      // Refresh vehicle data to update availability
+      const updatedVehicle = await getVehicleById(id);
+      setVehicle(updatedVehicle);
     } catch (error) {
-      console.error("Booking failed:", error); 
-      toast.error('Failed to submit booking. Please try again.');
+      console.error('Booking error:', error);
+      toast.error(error.message || 'Failed to book vehicle');
+    } finally {
+      setBookingLoading(false);
     }
   };
 
-  if (loading || !vehicle) {
-    return <LoadingSpinner />;
+  // Generate multiple image URLs for gallery (in real app, these would come from backend)
+  const imageUrls = vehicle ? [
+    vehicle.coverImage || vehicle.imageURL || '/default-vehicle.jpg',
+    vehicle.coverImage || vehicle.imageURL || '/default-vehicle.jpg',
+    vehicle.coverImage || vehicle.imageURL || '/default-vehicle.jpg'
+  ] : [];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (!vehicle) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center bg-white p-8 rounded-2xl shadow-lg">
+          <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">Vehicle Not Found</h2>
+          <p className="text-gray-600 mb-6">The vehicle you're looking for doesn't exist or has been removed.</p>
+          <Link 
+            to="/vehicles" 
+            className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-all duration-200 font-medium"
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Vehicles
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8">
       <div className="container mx-auto px-4">
-        <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="md:flex">
-            <div className="md:w-1/2">
-              <img 
-                src={vehicle.coverImage} 
-                alt={vehicle.vehicleName}
-                className="w-full h-96 object-cover"
-              />
-            </div>
-            <div className="md:w-1/2 p-8">
-              <div className="flex justify-between items-start mb-4">
-                <h1 className="text-3xl font-bold text-gray-800">{vehicle.vehicleName}</h1>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  vehicle.availability === 'Available' 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-red-100 text-red-800'
-                }`}>
-                  {vehicle.availability}
+        <div className="max-w-7xl mx-auto">
+          {/* Breadcrumb */}
+          <nav className="mb-8">
+            <ol className="flex items-center space-x-2 text-sm text-gray-600">
+              <li>
+                <Link to="/" className="hover:text-blue-600 transition-colors flex items-center">
+                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  </svg>
+                  Home
+                </Link>
+              </li>
+              <li className="flex items-center">
+                <svg className="w-4 h-4 mx-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+                <Link to="/vehicles" className="hover:text-blue-600 transition-colors">All Vehicles</Link>
+              </li>
+              <li className="flex items-center">
+                <svg className="w-4 h-4 mx-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+                <span className="text-gray-900 font-medium truncate max-w-[200px]">
+                  {vehicle.vehicleName || vehicle.name}
                 </span>
+              </li>
+            </ol>
+          </nav>
+
+          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
+              {/* Vehicle Images Section */}
+              <div className="space-y-4">
+                {/* Main Image */}
+                <div className="relative rounded-xl overflow-hidden bg-gray-100">
+                  <img
+                    src={imageUrls[activeImage]}
+                    alt={vehicle.vehicleName || vehicle.name}
+                    className="w-full h-80 lg:h-96 object-cover transition-all duration-300 hover:scale-105"
+                    onError={(e) => {
+                      e.target.src = '/default-vehicle.jpg';
+                    }}
+                  />
+                  {/* Availability Badge */}
+                  <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-semibold ${
+                    vehicle.availability === 'Available' 
+                      ? 'bg-green-500 text-white' 
+                      : 'bg-red-500 text-white'
+                  }`}>
+                    {vehicle.availability}
+                  </div>
+                </div>
+
+                {/* Image Thumbnails */}
+                <div className="grid grid-cols-3 gap-3">
+                  {imageUrls.map((url, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setActiveImage(index)}
+                      className={`relative rounded-lg overflow-hidden border-2 transition-all duration-200 ${
+                        activeImage === index 
+                          ? 'border-blue-500 ring-2 ring-blue-200' 
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <img
+                        src={url}
+                        alt={`${vehicle.vehicleName || vehicle.name} ${index + 1}`}
+                        className="w-full h-20 object-cover"
+                        onError={(e) => {
+                          e.target.src = '/default-vehicle.jpg';
+                        }}
+                      />
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div className="space-y-4 mb-6">
-                <div className="flex items-center text-gray-600">
-                  <span className="font-medium w-24">Owner:</span>
-                  <span>{vehicle.owner}</span>
+              {/* Vehicle Details Section */}
+              <div className="space-y-6">
+                {/* Header with Price */}
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+                      {vehicle.vehicleName || vehicle.name}
+                    </h1>
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                        {vehicle.category}
+                      </span>
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                        {vehicle.fuelType || 'Flex Fuel'}
+                      </span>
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800">
+                        {vehicle.seats || 4} Seats
+                      </span>
+                    </div>
+                    <div className="flex items-center text-gray-600">
+                      <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span className="text-sm">{vehicle.location}</span>
+                    </div>
+                  </div>
+                  <div className="text-right ml-4">
+                    <div className="text-3xl font-bold text-blue-600">${vehicle.pricePerDay}</div>
+                    <div className="text-sm text-gray-500">per day</div>
+                  </div>
                 </div>
-                <div className="flex items-center text-gray-600">
-                  <span className="font-medium w-24">Category:</span>
-                  <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
-                    {vehicle.category}
-                  </span>
+
+                {/* Key Specifications */}
+                <div className="bg-gray-50 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Vehicle Specifications</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex items-center justify-between py-2 border-b border-gray-200">
+                      <span className="text-gray-600">Category</span>
+                      <span className="font-semibold">{vehicle.category}</span>
+                    </div>
+                    <div className="flex items-center justify-between py-2 border-b border-gray-200">
+                      <span className="text-gray-600">Fuel Type</span>
+                      <span className="font-semibold">{vehicle.fuelType || 'N/A'}</span>
+                    </div>
+                    <div className="flex items-center justify-between py-2 border-b border-gray-200">
+                      <span className="text-gray-600">Seating Capacity</span>
+                      <span className="font-semibold">{vehicle.seats || 'N/A'} people</span>
+                    </div>
+                    <div className="flex items-center justify-between py-2 border-b border-gray-200">
+                      <span className="text-gray-600">Year</span>
+                      <span className="font-semibold">{vehicle.year || 'N/A'}</span>
+                    </div>
+                    <div className="flex items-center justify-between py-2 border-b border-gray-200">
+                      <span className="text-gray-600">Location</span>
+                      <span className="font-semibold">{vehicle.location}</span>
+                    </div>
+                    <div className="flex items-center justify-between py-2 border-b border-gray-200">
+                      <span className="text-gray-600">Owner</span>
+                      <span className="font-semibold">{vehicle.owner || 'TravelEase'}</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center text-gray-600">
-                  <span className="font-medium w-24">Type:</span>
-                  <span>{vehicle.category}</span>
+
+                {/* Description */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                    <svg className="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Vehicle Description
+                  </h3>
+                  <p className="text-gray-700 leading-relaxed text-lg">
+                    {vehicle.description || 'This premium vehicle offers exceptional comfort and performance for your travel needs. Perfect for both city commuting and long-distance journeys, it comes equipped with modern amenities to ensure a smooth and enjoyable ride.'}
+                  </p>
                 </div>
-                <div className="flex items-center text-gray-600">
-                  <span className="font-medium w-24">Location:</span>
-                  <span>{vehicle.location}</span>
+
+                {/* Features & Amenities */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <svg className="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Features & Amenities
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      'Air Conditioning',
+                      'Bluetooth Connectivity',
+                      'GPS Navigation',
+                      'Backup Camera',
+                      'Leather Seats',
+                      'Sunroof',
+                      'Premium Sound System',
+                      'Keyless Entry'
+                    ].map((feature, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className="text-gray-700 text-sm">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex items-center text-gray-600">
-                  <span className="font-medium w-24">Price:</span>
-                  <span className="text-2xl font-bold text-blue-600">${vehicle.pricePerDay}/day</span>
+
+                {/* Booking Section */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
+                  <div className="text-center mb-4">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">Ready to Book?</h3>
+                    <p className="text-gray-600">Secure this vehicle for your next adventure</p>
+                  </div>
+
+                  {vehicle.availability === 'Available' ? (
+                    <div className="space-y-4">
+                      <button
+                        onClick={handleBookNow}
+                        disabled={bookingLoading}
+                        className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-4 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 font-semibold disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center space-x-3 text-lg"
+                      >
+                        {bookingLoading ? (
+                          <>
+                            <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <span>Processing Booking...</span>
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span>Book Now - ${vehicle.pricePerDay}/day</span>
+                          </>
+                        )}
+                      </button>
+                      
+                      {/* Quick Info */}
+                      <div className="flex justify-between items-center text-sm text-gray-600 bg-white rounded-lg p-3">
+                        <div className="flex items-center space-x-1">
+                          <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Instant Confirmation</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>Free Cancellation</span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center">
+                      <div className="w-full bg-gray-100 text-gray-500 py-4 rounded-xl font-semibold text-center text-lg mb-3">
+                        <div className="flex items-center justify-center space-x-3">
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                          </svg>
+                          <span>Currently Booked</span>
+                        </div>
+                      </div>
+                      <p className="text-gray-500 text-sm">This vehicle is currently unavailable. Check back later or browse other available vehicles.</p>
+                    </div>
+                  )}
+                  
+                  {!user && vehicle.availability === 'Available' && (
+                    <div className="mt-3 text-center">
+                      <p className="text-gray-600 text-sm">
+                        Please{' '}
+                        <Link to="/login" className="text-blue-600 hover:text-blue-700 font-semibold underline">
+                          login
+                        </Link>{' '}
+                        to book this vehicle
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
+            </div>
+          </div>
 
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">Description</h3>
-                <p className="text-gray-600 leading-relaxed">{vehicle.description}</p>
+          {/* Safety & Guidelines Section */}
+          <div className="mt-8 bg-white rounded-2xl shadow-lg p-6">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4 text-center">Safety & Guidelines</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <h4 className="font-semibold text-gray-900 mb-2">Verified Vehicles</h4>
+                <p className="text-gray-600 text-sm">All vehicles undergo thorough inspection and maintenance checks</p>
               </div>
-
-              <button
-                onClick={handleBookNow}
-                disabled={vehicle.availability !== 'Available'}
-                className={`w-full py-3 px-6 rounded-lg font-semibold text-lg transition-colors ${
-                  vehicle.availability === 'Available'
-                    ? 'bg-blue-600 text-white hover:bg-blue-700'
-                    : 'bg-gray-400 text-gray-700 cursor-not-allowed'
-                }`}
-              >
-                {vehicle.availability === 'Available' ? 'Book Now' : 'Currently Booked'}
-              </button>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </div>
+                <h4 className="font-semibold text-gray-900 mb-2">Secure Booking</h4>
+                <p className="text-gray-600 text-sm">Your personal and payment information is always protected</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h4 className="font-semibold text-gray-900 mb-2">24/7 Support</h4>
+                <p className="text-gray-600 text-sm">Our support team is available round the clock to assist you</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
-
-      <BookingModal
-        vehicle={vehicle}
-        isOpen={showBookingModal}
-        onClose={() => setShowBookingModal(false)}
-        onConfirm={handleBookingConfirm}
-      />
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import VehicleCard from '../../components/common/VehicleCard';
 import SearchFilter from '../../components/ui/SearchFilter';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
@@ -8,6 +9,7 @@ import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-hot-toast'; 
 
 const AllVehicles = () => {
+  const navigate = useNavigate();
   const { getAllVehicles, loading } = useVehicles();
   const { createBooking } = useBookings();
   const { user } = useAuth();
@@ -82,6 +84,12 @@ const AllVehicles = () => {
     } finally {
       setBookingLoading(null);
     }
+  };
+
+  const handleViewDetails = (vehicleId) => {
+    console.log('View Details clicked for vehicle ID:', vehicleId);
+    console.log('Navigating to:', `/vehicle/${vehicleId}`);
+    navigate(`/vehicle/${vehicleId}`);
   };
 
   // Stats calculation
@@ -179,89 +187,74 @@ const AllVehicles = () => {
                   <div className="relative">
                     <VehicleCard vehicle={vehicle} />
                     
-                    {/* Book Button - Positioned outside the card content */}
-                    {vehicle.availability === 'Available' && (
-                      <div className="p-6 pt-4 border-t border-gray-100 bg-white">
+                    {/* Action Buttons */}
+                    <div className="p-6 pt-4 border-t border-gray-100 bg-white">
+                      {/* Button Group */}
+                      <div className="flex flex-col space-y-3">
+                        {/* View Details Button */}
                         <button
-                          onClick={() => handleBookVehicle(vehicle._id)}
-                          disabled={bookingLoading === vehicle._id}
-                          className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-4 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 font-semibold disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center space-x-2"
+                          onClick={() => handleViewDetails(vehicle._id)}
+                          className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center space-x-2"
                         >
-                          {bookingLoading === vehicle._id ? (
-                            <>
-                              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                              <span>Booking...</span>
-                            </>
-                          ) : (
-                            <>
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                              </svg>
-                              <span>Book This Vehicle</span>
-                            </>
-                          )}
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          <span>View Details</span>
                         </button>
-                        
-                        {/* Quick Info */}
-                        <div className="flex justify-between items-center mt-3 text-sm text-gray-500">
-                          <div className="flex items-center space-x-1">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                            </svg>
-                            <span>${vehicle.pricePerDay}/day</span>
+
+                        {/* Book Button */}
+                        {vehicle.availability === 'Available' ? (
+                          <button
+                            onClick={() => handleBookVehicle(vehicle._id)}
+                            disabled={bookingLoading === vehicle._id}
+                            className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 font-semibold disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center space-x-2"
+                          >
+                            {bookingLoading === vehicle._id ? (
+                              <>
+                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                <span>Booking...</span>
+                              </>
+                            ) : (
+                              <>
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Book Now</span>
+                              </>
+                            )}
+                          </button>
+                        ) : (
+                          <div className="w-full bg-gray-100 text-gray-500 py-3 rounded-xl font-semibold text-center">
+                            <div className="flex items-center justify-center space-x-2">
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                              </svg>
+                              <span>Currently Booked</span>
+                            </div>
                           </div>
-                          <div className="flex items-center space-x-1">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            </svg>
-                            <span>{vehicle.location}</span>
-                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Quick Info */}
+                      <div className="flex justify-between items-center mt-3 text-sm text-gray-500">
+                        <div className="flex items-center space-x-1">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                          </svg>
+                          <span>${vehicle.pricePerDay}/day</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          </svg>
+                          <span>{vehicle.location}</span>
                         </div>
                       </div>
-                    )}
-                    
-                    {vehicle.availability !== 'Available' && (
-                      <div className="p-6 pt-4 border-t border-gray-100 bg-white">
-                        <div className="w-full bg-gray-100 text-gray-500 py-4 rounded-xl font-semibold text-center">
-                          <div className="flex items-center justify-center space-x-2">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                            <span>Currently Booked</span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                    </div>
                   </div>
                 </div>
               ))}
-            </div>
-          )}
-
-          {/* Load More Section (if needed) */}
-          {vehicles.length > 0 && (
-            <div className="text-center mt-12">
-              <div className="bg-white rounded-2xl shadow-lg p-8">
-                <h3 className="text-xl font-semibold text-gray-800 mb-4">
-                  Found what you're looking for?
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  Book your perfect vehicle today and start your journey with confidence.
-                </p>
-                {!user && (
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <button
-                      onClick={() => toast.error('Please login to book a vehicle')}
-                      className="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 transition-all duration-200 font-medium"
-                    >
-                      Sign In to Book
-                    </button>
-                    <button className="border-2 border-blue-600 text-blue-600 px-8 py-3 rounded-xl hover:bg-blue-50 transition-all duration-200 font-medium">
-                      Learn More
-                    </button>
-                  </div>
-                )}
-              </div>
             </div>
           )}
         </div>
