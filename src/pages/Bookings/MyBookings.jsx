@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../../hooks/useAuth';
-import { useBookings } from '../../hooks/useBookings';
+import { useAuth } from '../../pages/hooks/useAuth';
+import { useBookings } from '../hooks/useBookings'
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 
 const MyBookings = () => {

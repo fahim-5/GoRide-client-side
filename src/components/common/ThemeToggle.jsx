@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTheme } from '../../context/ThemeContext';
 
 const ThemeToggle = () => {
   const [isDark, setIsDark] = useState(false);
