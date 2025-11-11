@@ -27,11 +27,11 @@ const Navbar = () => {
             to="/" 
             className="flex items-center space-x-2 group"
           >
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">GR</span>
+            <div className="w-8 h-8 bg-gradient-to-br from-green-600 to-green-700 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">TE</span>
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
-              GoRide
+            <span className="text-xl font-bold bg-gradient-to-r from-green-600 to-green-800 bg-clip-text text-transparent">
+              TravelEase
             </span>
           </Link>
 
@@ -39,13 +39,13 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-1">
             <Link 
               to="/" 
-              className="px-4 py-2 text-gray-700 hover:text-blue-600 transition-all duration-200 rounded-lg hover:bg-blue-50 font-medium"
+              className="px-4 py-2 text-gray-700 hover:text-green-600 transition-all duration-200 rounded-lg hover:bg-green-50 font-medium"
             >
               Home
             </Link>
             <Link 
               to="/vehicles" 
-              className="px-4 py-2 text-gray-700 hover:text-blue-600 transition-all duration-200 rounded-lg hover:bg-blue-50 font-medium"
+              className="px-4 py-2 text-gray-700 hover:text-green-600 transition-all duration-200 rounded-lg hover:bg-green-50 font-medium"
             >
               All Vehicles
             </Link>
@@ -53,19 +53,19 @@ const Navbar = () => {
               <>
                 <Link 
                   to="/add-vehicle" 
-                  className="px-4 py-2 text-gray-700 hover:text-blue-600 transition-all duration-200 rounded-lg hover:bg-blue-50 font-medium"
+                  className="px-4 py-2 text-gray-700 hover:text-green-600 transition-all duration-200 rounded-lg hover:bg-green-50 font-medium"
                 >
                   Add Vehicle
                 </Link>
                 <Link 
                   to="/my-vehicles" 
-                  className="px-4 py-2 text-gray-700 hover:text-blue-600 transition-all duration-200 rounded-lg hover:bg-blue-50 font-medium"
+                  className="px-4 py-2 text-gray-700 hover:text-green-600 transition-all duration-200 rounded-lg hover:bg-green-50 font-medium"
                 >
                   My Vehicles
                 </Link>
                 <Link 
                   to="/my-bookings" 
-                  className="px-4 py-2 text-gray-700 hover:text-blue-600 transition-all duration-200 rounded-lg hover:bg-blue-50 font-medium"
+                  className="px-4 py-2 text-gray-700 hover:text-green-600 transition-all duration-200 rounded-lg hover:bg-green-50 font-medium"
                 >
                   My Bookings
                 </Link>
@@ -77,15 +77,16 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-3">
             {user ? (
               <div className="relative">
-                <button 
-                  onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-all duration-200 border border-transparent hover:border-gray-200"
+                <div 
+                  className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-all duration-200 border border-transparent hover:border-gray-200 cursor-pointer"
+                  onMouseEnter={() => setIsProfileOpen(true)}
+                  onMouseLeave={() => setIsProfileOpen(false)}
                 >
                   <div className="flex items-center space-x-2">
                     <img 
                       src={user.photoURL || '/default-avatar.png'} 
                       alt={user.displayName || 'User'} 
-                      className="w-8 h-8 rounded-full ring-2 ring-blue-100"
+                      className="w-8 h-8 rounded-full ring-2 ring-green-100"
                     />
                     <div className="text-left">
                       <p className="text-sm font-medium text-gray-900">
@@ -104,11 +105,15 @@ const Navbar = () => {
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
-                </button>
+                </div>
 
-                {/* Profile Dropdown */}
+                {/* Profile Dropdown - Opens on hover */}
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
+                  <div 
+                    className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50"
+                    onMouseEnter={() => setIsProfileOpen(true)}
+                    onMouseLeave={() => setIsProfileOpen(false)}
+                  >
                     <div className="px-4 py-3 border-b border-gray-100">
                       <p className="text-sm font-medium text-gray-900">{user.displayName || 'User'}</p>
                       <p className="text-sm text-gray-500 truncate">{user.email}</p>
@@ -116,7 +121,7 @@ const Navbar = () => {
                     <div className="py-2">
                       <Link 
                         to="/my-vehicles" 
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors"
                         onClick={() => setIsProfileOpen(false)}
                       >
                         <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -126,7 +131,7 @@ const Navbar = () => {
                       </Link>
                       <Link 
                         to="/my-bookings" 
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors"
                         onClick={() => setIsProfileOpen(false)}
                       >
                         <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -159,7 +164,7 @@ const Navbar = () => {
                 </Link>
                 <Link 
                   to="/register" 
-                  className="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  className="px-6 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white font-medium rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                 >
                   Get Started
                 </Link>
@@ -186,14 +191,14 @@ const Navbar = () => {
             <div className="py-4 space-y-1">
               <Link 
                 to="/" 
-                className="block px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-medium"
+                className="block px-4 py-3 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Home
               </Link>
               <Link 
                 to="/vehicles" 
-                className="block px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-medium"
+                className="block px-4 py-3 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors font-medium"
                 onClick={() => setIsMenuOpen(false)}
               >
                 All Vehicles
@@ -202,21 +207,21 @@ const Navbar = () => {
                 <>
                   <Link 
                     to="/add-vehicle" 
-                    className="block px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-medium"
+                    className="block px-4 py-3 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors font-medium"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Add Vehicle
                   </Link>
                   <Link 
                     to="/my-vehicles" 
-                    className="block px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-medium"
+                    className="block px-4 py-3 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors font-medium"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     My Vehicles
                   </Link>
                   <Link 
                     to="/my-bookings" 
-                    className="block px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors font-medium"
+                    className="block px-4 py-3 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors font-medium"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     My Bookings
@@ -233,7 +238,7 @@ const Navbar = () => {
                     <img 
                       src={user.photoURL || '/default-avatar.png'} 
                       alt={user.displayName || 'User'} 
-                      className="w-10 h-10 rounded-full ring-2 ring-blue-100"
+                      className="w-10 h-10 rounded-full ring-2 ring-green-100"
                     />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">
@@ -265,7 +270,7 @@ const Navbar = () => {
                   </Link>
                   <Link 
                     to="/register" 
-                    className="block w-full text-center px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium shadow-lg"
+                    className="block w-full text-center px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 font-medium shadow-lg"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Get Started

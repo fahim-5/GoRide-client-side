@@ -1,4 +1,4 @@
-# 🚗 GoRide - Vehicle Booking & Trip Management Platform
+# 🚗 TravelEase - Vehicle Booking & Trip Management Platform
 
 A full-stack MERN application for seamless vehicle rentals and trip management. Connect with vehicle owners and travelers in one platform.
 
