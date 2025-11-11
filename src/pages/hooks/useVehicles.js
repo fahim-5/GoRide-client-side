@@ -5,6 +5,22 @@ export const useVehicles = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Get latest vehicles
+  const getLatestVehicles = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const vehicles = await vehicleService.getLatestVehicles();
+      return vehicles;
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch latest vehicles';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   // Create a new vehicle
   const createVehicle = useCallback(async (vehicleData) => {
     setLoading(true);
@@ -37,7 +53,7 @@ export const useVehicles = () => {
     }
   }, []);
 
-  // ✅ ADDED: Update an existing vehicle
+  // Update an existing vehicle
   const updateVehicle = useCallback(async (id, vehicleData) => {
     setLoading(true);
     setError(null);
@@ -114,8 +130,9 @@ export const useVehicles = () => {
     getVehicleById,
     getAllVehicles,
     getMyVehicles,
+    getLatestVehicles, // ✅ ADDED: This was missing!
     createVehicle,
-    updateVehicle, // ✅ ADDED: Make sure this is returned
+    updateVehicle,
     deleteVehicle,
     clearError
   };
