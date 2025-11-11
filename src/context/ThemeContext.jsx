@@ -12,24 +12,26 @@ export const useTheme = () => {
 };
 
 export const ThemeProvider = ({ children }) => {
-  const [isDark, setIsDark] = useState(false);
+  // ✅ Default to dark mode
+  const [isDark, setIsDark] = useState(true);
 
   // Initialize theme from localStorage or system preference
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
+
     if (savedTheme) {
       setIsDark(savedTheme === 'dark');
-    } else if (systemPrefersDark) {
+    } else if (!savedTheme && systemPrefersDark) {
       setIsDark(true);
     }
+    // If nothing saved and system is light, we still default to dark
   }, []);
 
   // Update localStorage and document class when theme changes
   useEffect(() => {
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    
+
     if (isDark) {
       document.documentElement.classList.add('dark');
     } else {

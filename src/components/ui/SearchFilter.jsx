@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const SearchFilter = ({ onFilter, onSort }) => {
+const SearchFilter = ({ onFilter, onSort, isDark }) => {
   const [filters, setFilters] = useState({
     category: '',
     location: '',
@@ -37,15 +37,27 @@ const SearchFilter = ({ onFilter, onSort }) => {
     onSort('');
   };
 
+  // Dynamic styles for theme
+  const containerClass = isDark
+    ? 'bg-gray-800/90 border border-gray-700 text-gray-200 shadow-lg'
+    : 'bg-white border border-gray-200 text-gray-800 shadow-md';
+  const labelClass = isDark ? 'text-gray-300' : 'text-gray-700';
+  const inputClass = isDark
+    ? 'bg-gray-900 text-gray-100 border-gray-700 placeholder-gray-500 focus:ring-blue-500'
+    : 'bg-white text-gray-800 border-gray-300 placeholder-gray-400 focus:ring-blue-500';
+  const buttonClass = isDark
+    ? 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+    : 'bg-gray-500 text-white hover:bg-gray-600';
+
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+    <div className={`${containerClass} p-6 rounded-lg mb-6 transition-all duration-300`}>
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+          <label className={`block text-sm font-medium mb-1 ${labelClass}`}>Category</label>
           <select
             value={filters.category}
             onChange={(e) => handleFilterChange('category', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${inputClass}`}
           >
             <option value="">All Categories</option>
             <option value="Sedan">Sedan</option>
@@ -56,22 +68,22 @@ const SearchFilter = ({ onFilter, onSort }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+          <label className={`block text-sm font-medium mb-1 ${labelClass}`}>Location</label>
           <input
             type="text"
             value={filters.location}
             onChange={(e) => handleFilterChange('location', e.target.value)}
             placeholder="Search location"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${inputClass}`}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Price Range</label>
+          <label className={`block text-sm font-medium mb-1 ${labelClass}`}>Price Range</label>
           <select
             value={filters.priceRange}
             onChange={(e) => handleFilterChange('priceRange', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${inputClass}`}
           >
             <option value="">Any Price</option>
             <option value="0-50">$0 - $50</option>
@@ -82,11 +94,11 @@ const SearchFilter = ({ onFilter, onSort }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Availability</label>
+          <label className={`block text-sm font-medium mb-1 ${labelClass}`}>Availability</label>
           <select
             value={filters.availability}
             onChange={(e) => handleFilterChange('availability', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${inputClass}`}
           >
             <option value="">All</option>
             <option value="Available">Available</option>
@@ -95,11 +107,11 @@ const SearchFilter = ({ onFilter, onSort }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+          <label className={`block text-sm font-medium mb-1 ${labelClass}`}>Sort By</label>
           <select
             value={sortBy}
             onChange={(e) => handleSortChange(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${inputClass}`}
           >
             <option value="">Default</option>
             <option value="price-low">Price: Low to High</option>
@@ -110,14 +122,7 @@ const SearchFilter = ({ onFilter, onSort }) => {
         </div>
       </div>
 
-      <div className="flex justify-end mt-4">
-        <button
-          onClick={clearFilters}
-          className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
-        >
-          Clear Filters
-        </button>
-      </div>
+      
     </div>
   );
 };

@@ -1,7 +1,11 @@
 // components/common/VehicleModal.jsx
 import { useEffect } from 'react';
+import { useTheme } from '../../context/ThemeContext';
+import { FaMapMarkerAlt, FaGasPump, FaUsers, FaStar, FaTag, FaDollarSign } from 'react-icons/fa';
 
 const VehicleModal = ({ vehicle, isOpen, onClose }) => {
+  const { isDark } = useTheme();
+
   // Close modal on Escape key press
   useEffect(() => {
     const handleEscape = (e) => {
@@ -21,127 +25,268 @@ const VehicleModal = ({ vehicle, isOpen, onClose }) => {
 
   if (!isOpen || !vehicle) return null;
 
+  const {
+    _id,
+    vehicleName,
+    coverImage,
+    pricePerDay,
+    category,
+    location,
+    fuelType,
+    seats,
+    availability,
+    rating,
+    description,
+    owner,
+    userEmail
+  } = vehicle;
+
+  const isAvailable = availability === 'Available';
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-colors duration-300">
       {/* Modal Overlay */}
       <div 
-        className="absolute inset-0 bg-black/50"
+        className={`absolute inset-0 transition-colors duration-300 ${
+          isDark ? 'bg-black/70' : 'bg-black/60'
+        }`}
         onClick={onClose}
       ></div>
       
       {/* Modal Content */}
-      <div className="relative bg-white dark:bg-gray-800 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div className={`relative rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl transition-colors duration-300 ${
+        isDark ? 'bg-gray-800' : 'bg-white'
+      }`}>
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/80 dark:bg-gray-700/80 rounded-full flex items-center justify-center hover:bg-white dark:hover:bg-gray-600 transition-colors duration-200 shadow-lg"
+          className={`absolute top-4 right-4 z-10 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-110 shadow-lg ${
+            isDark 
+              ? 'bg-gray-700/80 hover:bg-gray-600' 
+              : 'bg-white/80 hover:bg-white'
+          }`}
         >
-          <svg className="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className={`w-6 h-6 transition-colors duration-300 ${
+            isDark ? 'text-gray-300' : 'text-gray-700'
+          }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
           {/* Image Section */}
-          <div className="relative h-80 lg:h-full min-h-[400px]">
+          <div className="relative h-80 lg:h-full min-h-[400px] lg:min-h-[500px]">
             <img
-              src={vehicle.images?.[0] || '/default-car.jpg'}
-              alt={vehicle.make}
+              src={coverImage || '/default-vehicle.jpg'}
+              alt={vehicleName}
               className="w-full h-full object-cover rounded-t-3xl lg:rounded-l-3xl lg:rounded-tr-none"
+              onError={(e) => {
+                e.target.src = '/default-vehicle.jpg';
+              }}
             />
-            {/* Image Gallery Indicator */}
-            {vehicle.images && vehicle.images.length > 1 && (
-              <div className="absolute bottom-4 left-4 flex space-x-2">
-                {vehicle.images.slice(0, 4).map((_, index) => (
-                  <div key={index} className="w-2 h-2 bg-white/80 rounded-full"></div>
-                ))}
-                {vehicle.images.length > 4 && (
-                  <div className="w-2 h-2 bg-white/40 rounded-full"></div>
-                )}
+            
+            {/* Availability Badge */}
+            <div className={`absolute top-4 left-4 px-3 py-2 rounded-full text-sm font-semibold backdrop-blur-sm border ${
+              isAvailable 
+                ? 'bg-green-500/90 border-green-400/30 text-white' 
+                : 'bg-red-500/90 border-red-400/30 text-white'
+            }`}>
+              {isAvailable ? 'Available' : 'Booked'}
+            </div>
+
+            {/* Rating Badge */}
+            {rating && (
+              <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm text-white px-3 py-2 rounded-full text-sm font-semibold flex items-center space-x-2">
+                <FaStar className="text-yellow-400" size={14} />
+                <span>{rating}</span>
               </div>
             )}
+
+            {/* Price Overlay */}
+            <div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-sm text-white px-4 py-3 rounded-xl">
+              <div className="flex items-center space-x-1">
+                <FaDollarSign className="text-green-400" size={16} />
+                <span className="text-2xl font-bold">{pricePerDay}</span>
+                <span className="text-green-300 text-sm">/ day</span>
+              </div>
+            </div>
           </div>
 
           {/* Content Section */}
           <div className="p-8">
             {/* Header */}
             <div className="mb-6">
-              <div className="flex items-center gap-2 mb-3">
-                {vehicle.isPremium && (
-                  <span className="bg-gradient-to-r from-amber-400 to-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                    PREMIUM
+              <div className="flex items-center gap-3 mb-4">
+                <span className={`px-3 py-1 rounded-lg text-sm font-medium ${
+                  isDark 
+                    ? 'bg-blue-900/50 text-blue-300' 
+                    : 'bg-blue-100 text-blue-600'
+                }`}>
+                  {category}
+                </span>
+                {fuelType && (
+                  <span className={`px-3 py-1 rounded-lg text-sm font-medium ${
+                    isDark 
+                      ? 'bg-orange-900/50 text-orange-300' 
+                      : 'bg-orange-100 text-orange-600'
+                  }`}>
+                    {fuelType}
                   </span>
                 )}
-                <span className="bg-blue-100 text-blue-600 text-xs font-medium px-3 py-1 rounded-full dark:bg-blue-900/50 dark:text-blue-300">
-                  {vehicle.category}
-                </span>
               </div>
               
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                {vehicle.make} {vehicle.model}
+              <h2 className={`text-3xl font-bold mb-3 transition-colors duration-300 ${
+                isDark ? 'text-white' : 'text-gray-900'
+              }`}>
+                {vehicleName}
               </h2>
-              <p className="text-xl text-blue-600 font-semibold dark:text-blue-400">
-                ${vehicle.pricePerDay}/day
-              </p>
+              
+              {/* Location */}
+              <div className="flex items-center space-x-2 mb-4">
+                <FaMapMarkerAlt className={`flex-shrink-0 ${
+                  isDark ? 'text-blue-400' : 'text-blue-500'
+                }`} size={16} />
+                <span className={`transition-colors duration-300 ${
+                  isDark ? 'text-gray-300' : 'text-gray-600'
+                }`}>
+                  {location}
+                </span>
+              </div>
             </div>
 
             {/* Key Specifications */}
-            <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-              <div className="text-center">
-                <div className="text-gray-500 text-sm dark:text-gray-400">Year</div>
-                <div className="font-semibold text-gray-900 dark:text-white">{vehicle.year}</div>
-              </div>
-              <div className="text-center">
-                <div className="text-gray-500 text-sm dark:text-gray-400">Fuel Type</div>
-                <div className="font-semibold text-gray-900 dark:text-white">{vehicle.fuelType}</div>
-              </div>
-              <div className="text-center">
-                <div className="text-gray-500 text-sm dark:text-gray-400">Seats</div>
-                <div className="font-semibold text-gray-900 dark:text-white">{vehicle.seats}</div>
-              </div>
-              <div className="text-center">
-                <div className="text-gray-500 text-sm dark:text-gray-400">Transmission</div>
-                <div className="font-semibold text-gray-900 dark:text-white">{vehicle.transmission}</div>
+            <div className={`mb-6 p-6 rounded-xl transition-colors duration-300 ${
+              isDark ? 'bg-gray-700/50' : 'bg-gray-50'
+            }`}>
+              <h3 className={`text-lg font-semibold mb-4 transition-colors duration-300 ${
+                isDark ? 'text-white' : 'text-gray-900'
+              }`}>
+                Vehicle Specifications
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center space-x-3">
+                  <FaTag className={`flex-shrink-0 ${
+                    isDark ? 'text-green-400' : 'text-green-500'
+                  }`} size={16} />
+                  <div>
+                    <div className={`text-sm transition-colors duration-300 ${
+                      isDark ? 'text-gray-400' : 'text-gray-500'
+                    }`}>Category</div>
+                    <div className={`font-semibold transition-colors duration-300 ${
+                      isDark ? 'text-white' : 'text-gray-900'
+                    }`}>{category}</div>
+                  </div>
+                </div>
+                
+                {fuelType && (
+                  <div className="flex items-center space-x-3">
+                    <FaGasPump className={`flex-shrink-0 ${
+                      isDark ? 'text-orange-400' : 'text-orange-500'
+                    }`} size={16} />
+                    <div>
+                      <div className={`text-sm transition-colors duration-300 ${
+                        isDark ? 'text-gray-400' : 'text-gray-500'
+                      }`}>Fuel Type</div>
+                      <div className={`font-semibold transition-colors duration-300 ${
+                        isDark ? 'text-white' : 'text-gray-900'
+                      }`}>{fuelType}</div>
+                    </div>
+                  </div>
+                )}
+                
+                {seats && (
+                  <div className="flex items-center space-x-3">
+                    <FaUsers className={`flex-shrink-0 ${
+                      isDark ? 'text-purple-400' : 'text-purple-500'
+                    }`} size={16} />
+                    <div>
+                      <div className={`text-sm transition-colors duration-300 ${
+                        isDark ? 'text-gray-400' : 'text-gray-500'
+                      }`}>Seats</div>
+                      <div className={`font-semibold transition-colors duration-300 ${
+                        isDark ? 'text-white' : 'text-gray-900'
+                      }`}>{seats} people</div>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="flex items-center space-x-3">
+                  <FaDollarSign className={`flex-shrink-0 ${
+                    isDark ? 'text-green-400' : 'text-green-500'
+                  }`} size={16} />
+                  <div>
+                    <div className={`text-sm transition-colors duration-300 ${
+                      isDark ? 'text-gray-400' : 'text-gray-500'
+                    }`}>Price</div>
+                    <div className={`font-semibold transition-colors duration-300 ${
+                      isDark ? 'text-white' : 'text-gray-900'
+                    }`}>${pricePerDay}/day</div>
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Description */}
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Description</h3>
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                {vehicle.description || `Experience the perfect blend of performance and comfort with this ${vehicle.year} ${vehicle.make} ${vehicle.model}. This vehicle offers exceptional driving dynamics and premium features that make every journey memorable.`}
+              <h3 className={`text-lg font-semibold mb-3 transition-colors duration-300 ${
+                isDark ? 'text-white' : 'text-gray-900'
+              }`}>
+                Description
+              </h3>
+              <p className={`leading-relaxed transition-colors duration-300 ${
+                isDark ? 'text-gray-300' : 'text-gray-600'
+              }`}>
+                {description || `Experience the perfect blend of performance and comfort with this ${category}. This vehicle offers exceptional driving dynamics and premium features that make every journey memorable.`}
               </p>
             </div>
 
-            {/* Features */}
-            <div className="mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Key Features</h3>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  'Air Conditioning',
-                  'Bluetooth',
-                  'GPS Navigation',
-                  'Backup Camera',
-                  'Leather Seats',
-                  'Sunroof'
-                ].map((feature) => (
-                  <div key={feature} className="flex items-center space-x-2">
-                    <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span className="text-sm text-gray-600 dark:text-gray-300">{feature}</span>
+            {/* Owner Information */}
+            {owner && (
+              <div className={`mb-6 p-4 rounded-xl transition-colors duration-300 ${
+                isDark ? 'bg-gray-700/30' : 'bg-green-50'
+              }`}>
+                <h3 className={`text-sm font-semibold mb-2 transition-colors duration-300 ${
+                  isDark ? 'text-gray-300' : 'text-gray-700'
+                }`}>
+                  Listed by
+                </h3>
+                <div className="flex items-center space-x-3">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
+                    isDark ? 'bg-green-600 text-white' : 'bg-green-100 text-green-600'
+                  }`}>
+                    {owner.charAt(0).toUpperCase()}
                   </div>
-                ))}
+                  <div>
+                    <div className={`font-semibold transition-colors duration-300 ${
+                      isDark ? 'text-white' : 'text-gray-900'
+                    }`}>{owner}</div>
+                    <div className={`text-sm transition-colors duration-300 ${
+                      isDark ? 'text-gray-400' : 'text-gray-500'
+                    }`}>Vehicle Owner</div>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Action Buttons */}
             <div className="flex space-x-4">
-              <button className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-blue-700 transition-colors duration-200 shadow-lg hover:shadow-xl">
-                Book Now
+              <button 
+                className={`flex-1 py-4 px-6 rounded-xl font-semibold transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl ${
+                  isAvailable
+                    ? 'bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800'
+                    : 'bg-gray-400 text-white cursor-not-allowed'
+                }`}
+                disabled={!isAvailable}
+              >
+                {isAvailable ? 'Book This Vehicle' : 'Currently Booked'}
               </button>
-              <button className="flex items-center justify-center w-12 h-12 border-2 border-gray-300 dark:border-gray-600 rounded-xl hover:border-blue-500 transition-colors duration-200">
-                <svg className="w-6 h-6 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              
+              <button className={`flex items-center justify-center w-14 h-14 rounded-xl border-2 transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg ${
+                isDark
+                  ? 'border-gray-600 hover:border-green-500 text-gray-400 hover:text-green-400'
+                  : 'border-gray-300 hover:border-green-500 text-gray-600 hover:text-green-600'
+              }`}>
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
               </button>

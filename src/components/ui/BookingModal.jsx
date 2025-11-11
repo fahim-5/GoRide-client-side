@@ -22,20 +22,35 @@ const BookingModal = ({ vehicle, isOpen, onClose, onConfirm }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-gray-800">Book {vehicle.vehicleName}</h2>
-          <button 
+      <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-lg">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-5">
+          <h2 className="text-xl font-bold text-gray-800">
+            Book {vehicle.vehicleName}
+          </h2>
+          <button
             onClick={handleClose}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-gray-500 hover:text-gray-700 transition-colors"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
 
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Dates */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -44,11 +59,14 @@ const BookingModal = ({ vehicle, isOpen, onClose, onConfirm }) => {
               <input
                 type="date"
                 value={bookingData.startDate}
-                onChange={(e) => setBookingData({...bookingData, startDate: e.target.value})}
+                onChange={(e) =>
+                  setBookingData({ ...bookingData, startDate: e.target.value })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 End Date
@@ -56,26 +74,32 @@ const BookingModal = ({ vehicle, isOpen, onClose, onConfirm }) => {
               <input
                 type="date"
                 value={bookingData.endDate}
-                onChange={(e) => setBookingData({...bookingData, endDate: e.target.value})}
+                onChange={(e) =>
+                  setBookingData({ ...bookingData, endDate: e.target.value })
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
           </div>
 
+          {/* Notes */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Additional Notes
             </label>
             <textarea
               value={bookingData.notes}
-              onChange={(e) => setBookingData({...bookingData, notes: e.target.value})}
+              onChange={(e) =>
+                setBookingData({ ...bookingData, notes: e.target.value })
+              }
               rows="3"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Any special requirements or notes..."
             />
           </div>
 
+          {/* Pricing */}
           <div className="bg-gray-50 p-3 rounded-lg">
             <div className="flex justify-between text-sm">
               <span>Price per day:</span>
@@ -83,6 +107,7 @@ const BookingModal = ({ vehicle, isOpen, onClose, onConfirm }) => {
             </div>
           </div>
 
+          {/* Buttons */}
           <div className="flex space-x-3">
             <button
               type="button"

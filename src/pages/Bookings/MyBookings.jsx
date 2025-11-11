@@ -1,16 +1,30 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useBookings } from '../hooks/useBookings';
+import { useTheme } from '../../context/ThemeContext'; // ✅ ADDED: Theme context
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { toast } from 'react-hot-toast';
 
 const MyBookings = () => {
   const { user } = useAuth();
+  const { isDark } = useTheme(); // ✅ ADDED: Dark mode state
   const { getMyBookings, cancelBooking, loading, error, clearError } = useBookings();
   const [bookings, setBookings] = useState([]);
   const [cancellingId, setCancellingId] = useState(null);
   const [fetchError, setFetchError] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
+
+  // Dark mode classes
+  const bgGradient = isDark 
+    ? 'bg-gradient-to-br from-gray-900 to-gray-800' 
+    : 'bg-gradient-to-br from-gray-50 to-blue-50';
+  
+  const cardBg = isDark ? 'bg-gray-800' : 'bg-white';
+  const textColor = isDark ? 'text-white' : 'text-gray-800';
+  const textMuted = isDark ? 'text-gray-300' : 'text-gray-600';
+  const textLight = isDark ? 'text-gray-400' : 'text-gray-500';
+  const borderColor = isDark ? 'border-gray-700' : 'border-gray-200';
+  const hoverBg = isDark ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50';
 
   const fetchBookingsData = async (isRetry = false) => {
     if (user && user.email) {
@@ -39,7 +53,7 @@ const MyBookings = () => {
         
         console.log('✅ Processed bookings data:', bookingsData);
         setBookings(bookingsData);
-        setRetryCount(0); // Reset retry count on success
+        setRetryCount(0);
         
       } catch (error) {
         console.error('❌ Error fetching bookings:', error);
@@ -89,7 +103,6 @@ const MyBookings = () => {
     }
   };
 
-  // Safe data access helper functions
   const getVehicleData = (booking) => {
     const vehicle = booking.vehicleId || booking.vehicle || {};
     return {
@@ -126,7 +139,7 @@ const MyBookings = () => {
   // Show loading state
   if (loading && bookings.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
+      <div className={`min-h-screen ${bgGradient} flex items-center justify-center transition-colors duration-300`}>
         <LoadingSpinner />
       </div>
     );
@@ -135,16 +148,16 @@ const MyBookings = () => {
   // Show rate limit error state
   if (fetchError && fetchError.includes('Too many requests')) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
-        <div className="text-center bg-white rounded-2xl shadow-lg p-8 max-w-md mx-4">
-          <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className={`min-h-screen ${bgGradient} flex items-center justify-center transition-colors duration-300`}>
+        <div className={`${cardBg} rounded-2xl shadow-lg p-8 max-w-md mx-4 transition-colors duration-300`}>
+          <div className={`w-16 h-16 ${isDark ? 'bg-orange-900/50' : 'bg-orange-100'} rounded-full flex items-center justify-center mx-auto mb-4 transition-colors duration-300`}>
+            <svg className={`w-8 h-8 ${isDark ? 'text-orange-400' : 'text-orange-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h3 className="text-xl font-bold text-gray-800 mb-2">Too Many Requests</h3>
-          <p className="text-gray-600 mb-4">Please wait a moment before trying again.</p>
-          <p className="text-sm text-gray-500 mb-6">
+          <h3 className={`text-xl font-bold ${textColor} mb-2 transition-colors duration-300`}>Too Many Requests</h3>
+          <p className={`${textMuted} mb-4 transition-colors duration-300`}>Please wait a moment before trying again.</p>
+          <p className={`text-sm ${textLight} mb-6 transition-colors duration-300`}>
             This helps prevent overloading the server.
           </p>
           <button 
@@ -162,15 +175,15 @@ const MyBookings = () => {
   // Show other error state
   if (fetchError && !fetchError.includes('Too many requests')) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
-        <div className="text-center bg-white rounded-2xl shadow-lg p-8 max-w-md mx-4">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className={`min-h-screen ${bgGradient} flex items-center justify-center transition-colors duration-300`}>
+        <div className={`${cardBg} rounded-2xl shadow-lg p-8 max-w-md mx-4 transition-colors duration-300`}>
+          <div className={`w-16 h-16 ${isDark ? 'bg-red-900/50' : 'bg-red-100'} rounded-full flex items-center justify-center mx-auto mb-4 transition-colors duration-300`}>
+            <svg className={`w-8 h-8 ${isDark ? 'text-red-400' : 'text-red-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
-          <h3 className="text-xl font-bold text-gray-800 mb-2">Error Loading Bookings</h3>
-          <p className="text-gray-600 mb-4">{fetchError}</p>
+          <h3 className={`text-xl font-bold ${textColor} mb-2 transition-colors duration-300`}>Error Loading Bookings</h3>
+          <p className={`${textMuted} mb-4 transition-colors duration-300`}>{fetchError}</p>
           <button 
             onClick={handleRetry}
             className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
@@ -184,22 +197,22 @@ const MyBookings = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex items-center justify-center">
-        <div className="text-center bg-white rounded-2xl shadow-lg p-8 max-w-md mx-4">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className={`min-h-screen ${bgGradient} flex items-center justify-center transition-colors duration-300`}>
+        <div className={`${cardBg} rounded-2xl shadow-lg p-8 max-w-md mx-4 transition-colors duration-300`}>
+          <div className={`w-16 h-16 ${isDark ? 'bg-red-900/50' : 'bg-red-100'} rounded-full flex items-center justify-center mx-auto mb-4 transition-colors duration-300`}>
+            <svg className={`w-8 h-8 ${isDark ? 'text-red-400' : 'text-red-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
-          <h3 className="text-xl font-bold text-gray-800 mb-2">Authentication Required</h3>
-          <p className="text-gray-600 mb-6">Please login to view your bookings.</p>
+          <h3 className={`text-xl font-bold ${textColor} mb-2 transition-colors duration-300`}>Authentication Required</h3>
+          <p className={`${textMuted} mb-6 transition-colors duration-300`}>Please login to view your bookings.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8">
+    <div className={`min-h-screen ${bgGradient} py-8 transition-colors duration-300`}>
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
           {/* Header Section */}
@@ -207,34 +220,34 @@ const MyBookings = () => {
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent mb-4">
               My Bookings
             </h1>
-            <p className="text-gray-600 text-lg">
+            <p className={`${textMuted} text-lg transition-colors duration-300`}>
               Manage and track all your vehicle reservations in one place
             </p>
           </div>
 
           {/* Stats Card */}
-          <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+          <div className={`${cardBg} rounded-2xl shadow-lg p-6 mb-8 transition-colors duration-300`}>
             <div className="flex flex-col lg:flex-row justify-between items-center">
               <div className="flex items-center space-x-6 mb-4 lg:mb-0">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-blue-600">{bookings.length}</div>
-                  <div className="text-sm text-gray-500">Total Bookings</div>
+                  <div className={`text-sm ${textLight} transition-colors duration-300`}>Total Bookings</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-green-600">
                     {bookings.filter(b => b.status === 'confirmed').length}
                   </div>
-                  <div className="text-sm text-gray-500">Confirmed</div>
+                  <div className={`text-sm ${textLight} transition-colors duration-300`}>Confirmed</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-red-600">
                     {bookings.filter(b => b.status === 'cancelled').length}
                   </div>
-                  <div className="text-sm text-gray-500">Cancelled</div>
+                  <div className={`text-sm ${textLight} transition-colors duration-300`}>Cancelled</div>
                 </div>
               </div>
               
-              <div className="text-sm text-gray-500 bg-gray-100 px-4 py-2 rounded-lg">
+              <div className={`text-sm ${textLight} ${isDark ? 'bg-gray-700' : 'bg-gray-100'} px-4 py-2 rounded-lg transition-colors duration-300`}>
                 Showing {bookings.length} booking{bookings.length !== 1 ? 's' : ''}
               </div>
             </div>
@@ -242,14 +255,14 @@ const MyBookings = () => {
 
           {/* Bookings List */}
           {bookings.length === 0 ? (
-            <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
-              <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className={`${cardBg} rounded-2xl shadow-lg p-12 text-center transition-colors duration-300`}>
+              <div className={`w-24 h-24 ${isDark ? 'bg-blue-900/50' : 'bg-blue-100'} rounded-full flex items-center justify-center mx-auto mb-6 transition-colors duration-300`}>
+                <svg className={`w-12 h-12 ${isDark ? 'text-blue-400' : 'text-blue-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-3">No Bookings Yet</h3>
-              <p className="text-gray-600 mb-8 max-w-md mx-auto">
+              <h3 className={`text-2xl font-bold ${textColor} mb-3 transition-colors duration-300`}>No Bookings Yet</h3>
+              <p className={`${textMuted} mb-8 max-w-md mx-auto transition-colors duration-300`}>
                 You haven't made any bookings yet. Start by exploring our vehicles and book your perfect ride.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -261,7 +274,7 @@ const MyBookings = () => {
                 </a>
                 <a 
                   href="/"
-                  className="inline-block border-2 border-blue-600 text-blue-600 px-8 py-3 rounded-xl hover:bg-blue-50 transition-all duration-200 font-medium"
+                  className={`inline-block border-2 border-blue-600 text-blue-600 px-8 py-3 rounded-xl ${isDark ? 'hover:bg-blue-900/30' : 'hover:bg-blue-50'} transition-all duration-200 font-medium`}
                 >
                   Go Home
                 </a>
@@ -274,7 +287,7 @@ const MyBookings = () => {
                 const dates = getBookingDates(booking);
                 
                 return (
-                  <div key={booking._id} className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300">
+                  <div key={booking._id} className={`${cardBg} rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border ${borderColor} ${hoverBg}`}>
                     <div className="flex flex-col lg:flex-row lg:items-start justify-between">
                       {/* Booking Details */}
                       <div className="flex-1">
@@ -282,26 +295,26 @@ const MyBookings = () => {
                           <img 
                             src={vehicle.image} 
                             alt={vehicle.name}
-                            className="w-20 h-20 object-cover rounded-xl flex-shrink-0"
+                            className="w-20 h-20 object-cover rounded-xl flex-shrink-0 border border-gray-200 dark:border-gray-600"
                             onError={(e) => {
                               e.target.src = '/default-vehicle.jpg';
                             }}
                           />
                           <div className="flex-1">
-                            <h3 className="text-xl font-bold text-gray-800 mb-2">
+                            <h3 className={`text-xl font-bold ${textColor} mb-2 transition-colors duration-300`}>
                               {vehicle.name}
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                              <p className="text-gray-600">
+                              <p className={textMuted}>
                                 <span className="font-medium">Owner:</span> {vehicle.owner}
                               </p>
-                              <p className="text-gray-600">
+                              <p className={textMuted}>
                                 <span className="font-medium">Category:</span> {vehicle.category}
                               </p>
-                              <p className="text-gray-600">
+                              <p className={textMuted}>
                                 <span className="font-medium">Location:</span> {vehicle.location}
                               </p>
-                              <p className="text-gray-600">
+                              <p className={textMuted}>
                                 <span className="font-medium">Price per day:</span> ${vehicle.pricePerDay}
                               </p>
                             </div>
@@ -309,31 +322,37 @@ const MyBookings = () => {
                         </div>
                         
                         {/* Booking Info Card */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-xl">
+                        <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 p-4 ${isDark ? 'bg-gray-700/50' : 'bg-gray-50'} rounded-xl transition-colors duration-300`}>
                           <div>
-                            <span className="font-medium text-gray-700 block mb-1">Booking Dates</span>
-                            <p className="text-gray-600 text-sm">
+                            <span className={`font-medium ${textColor} block mb-1 transition-colors duration-300`}>Booking Dates</span>
+                            <p className={`${textMuted} text-sm transition-colors duration-300`}>
                               {dates.start} - {dates.end}
                             </p>
-                            <p className="text-gray-500 text-xs">
+                            <p className={`${textLight} text-xs transition-colors duration-300`}>
                               {dates.days} day{dates.days !== 1 ? 's' : ''}
                             </p>
                           </div>
                           <div>
-                            <span className="font-medium text-gray-700 block mb-1">Total Price</span>
+                            <span className={`font-medium ${textColor} block mb-1 transition-colors duration-300`}>Total Price</span>
                             <p className="text-blue-600 font-semibold text-lg">
                               ${booking.totalPrice || (dates.days * vehicle.pricePerDay)}
                             </p>
                           </div>
                           <div>
-                            <span className="font-medium text-gray-700 block mb-1">Status</span>
-                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            <span className={`font-medium ${textColor} block mb-1 transition-colors duration-300`}>Status</span>
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium border ${
                               booking.status === 'confirmed' 
-                                ? 'bg-green-100 text-green-800' 
+                                ? isDark 
+                                  ? 'bg-green-900/50 text-green-300 border-green-700/50' 
+                                  : 'bg-green-100 text-green-800 border-green-200'
                                 : booking.status === 'cancelled'
-                                ? 'bg-red-100 text-red-800'
-                                : 'bg-yellow-100 text-yellow-800'
-                            }`}>
+                                ? isDark
+                                  ? 'bg-red-900/50 text-red-300 border-red-700/50'
+                                  : 'bg-red-100 text-red-800 border-red-200'
+                                : isDark
+                                  ? 'bg-yellow-900/50 text-yellow-300 border-yellow-700/50'
+                                  : 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                            } transition-colors duration-300`}>
                               {booking.status || 'pending'}
                             </span>
                           </div>
@@ -342,12 +361,12 @@ const MyBookings = () => {
                         {/* Additional Booking Info */}
                         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                           <div>
-                            <span className="font-medium text-gray-700">Booking ID:</span>
-                            <p className="text-gray-600 font-mono text-xs mt-1">{booking._id}</p>
+                            <span className={`font-medium ${textColor} transition-colors duration-300`}>Booking ID:</span>
+                            <p className={`${textMuted} font-mono text-xs mt-1 transition-colors duration-300`}>{booking._id}</p>
                           </div>
                           <div>
-                            <span className="font-medium text-gray-700">Booked on:</span>
-                            <p className="text-gray-600 mt-1">
+                            <span className={`font-medium ${textColor} transition-colors duration-300`}>Booked on:</span>
+                            <p className={`${textMuted} mt-1 transition-colors duration-300`}>
                               {booking.createdAt ? new Date(booking.createdAt).toLocaleDateString() : 'Unknown date'}
                             </p>
                           </div>
@@ -356,8 +375,8 @@ const MyBookings = () => {
                         {/* Notes */}
                         {booking.notes && (
                           <div className="mt-4">
-                            <span className="font-medium text-gray-700">Notes:</span>
-                            <p className="text-gray-600 mt-1 text-sm">{booking.notes}</p>
+                            <span className={`font-medium ${textColor} transition-colors duration-300`}>Notes:</span>
+                            <p className={`${textMuted} mt-1 text-sm transition-colors duration-300`}>{booking.notes}</p>
                           </div>
                         )}
                       </div>
@@ -388,17 +407,17 @@ const MyBookings = () => {
                             
                             {/* Check if booking is upcoming or active */}
                             {new Date(booking.startDate) > new Date() && (
-                              <div className="text-xs text-green-600 text-center bg-green-50 px-3 py-1 rounded-lg">
+                              <div className={`text-xs ${isDark ? 'text-green-400 bg-green-900/30' : 'text-green-600 bg-green-50'} px-3 py-1 rounded-lg text-center border ${isDark ? 'border-green-700/50' : 'border-green-200'} transition-colors duration-300`}>
                                 🟢 Upcoming
                               </div>
                             )}
                             {new Date(booking.startDate) <= new Date() && new Date(booking.endDate) >= new Date() && (
-                              <div className="text-xs text-blue-600 text-center bg-blue-50 px-3 py-1 rounded-lg">
+                              <div className={`text-xs ${isDark ? 'text-blue-400 bg-blue-900/30' : 'text-blue-600 bg-blue-50'} px-3 py-1 rounded-lg text-center border ${isDark ? 'border-blue-700/50' : 'border-blue-200'} transition-colors duration-300`}>
                                 🔵 Active
                               </div>
                             )}
                             {new Date(booking.endDate) < new Date() && (
-                              <div className="text-xs text-gray-600 text-center bg-gray-50 px-3 py-1 rounded-lg">
+                              <div className={`text-xs ${isDark ? 'text-gray-400 bg-gray-700' : 'text-gray-600 bg-gray-50'} px-3 py-1 rounded-lg text-center border ${isDark ? 'border-gray-600' : 'border-gray-200'} transition-colors duration-300`}>
                                 ⚫ Completed
                               </div>
                             )}
@@ -406,7 +425,7 @@ const MyBookings = () => {
                         )}
                         
                         {booking.status === 'cancelled' && (
-                          <div className="text-xs text-red-600 text-center bg-red-50 px-3 py-2 rounded-lg border border-red-200">
+                          <div className={`text-xs ${isDark ? 'text-red-400 bg-red-900/30' : 'text-red-600 bg-red-50'} px-3 py-2 rounded-lg text-center border ${isDark ? 'border-red-700/50' : 'border-red-200'} transition-colors duration-300`}>
                             ❌ Cancelled
                           </div>
                         )}
@@ -420,16 +439,16 @@ const MyBookings = () => {
 
           {/* Help Section */}
           {bookings.length > 0 && (
-            <div className="mt-12 bg-blue-50 rounded-2xl p-6 border border-blue-200">
+            <div className={`mt-12 ${isDark ? 'bg-blue-900/30 border-blue-700' : 'bg-blue-50 border-blue-200'} rounded-2xl p-6 border transition-colors duration-300`}>
               <div className="flex items-start space-x-4">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                  <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className={`w-8 h-8 ${isDark ? 'bg-blue-800' : 'bg-blue-100'} rounded-full flex items-center justify-center flex-shrink-0 mt-1 transition-colors duration-300`}>
+                  <svg className={`w-4 h-4 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-blue-800 mb-2">Need Help?</h3>
-                  <p className="text-blue-700 text-sm">
+                  <h3 className={`font-semibold ${isDark ? 'text-blue-300' : 'text-blue-800'} mb-2 transition-colors duration-300`}>Need Help?</h3>
+                  <p className={`${isDark ? 'text-blue-200' : 'text-blue-700'} text-sm transition-colors duration-300`}>
                     If you have any questions about your bookings or need to make changes, 
                     please contact our support team. We're here to help!
                   </p>
