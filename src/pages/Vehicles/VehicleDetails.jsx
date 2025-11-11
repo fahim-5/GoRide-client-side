@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import BookingModal from '../../components/ui/BookingModal';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { toast } from 'react-hot-toast';
-import { useAuth } from '../hooks/useAuth';
+// Corrected to point two levels up to the context directory
+import { useAuth } from '../../context/AuthContext'; 
 import { useVehicles } from '../hooks/useVehicles';
 import { useBookings } from '../hooks/useBookings';
 
@@ -22,6 +23,8 @@ const VehicleDetails = () => {
         const vehicleData = await getVehicle(id);
         setVehicle(vehicleData);
       } catch (error) {
+        // Log error for debugging, then show user feedback
+        console.error("Vehicle fetch failed:", error); 
         toast.error('Vehicle not found.');
         navigate('/vehicles');
       }
@@ -48,6 +51,7 @@ const VehicleDetails = () => {
       toast.success('Booking request submitted successfully!');
       setShowBookingModal(false);
     } catch (error) {
+      console.error("Booking failed:", error); 
       toast.error('Failed to submit booking. Please try again.');
     }
   };
@@ -93,7 +97,7 @@ const VehicleDetails = () => {
                 </div>
                 <div className="flex items-center text-gray-600">
                   <span className="font-medium w-24">Type:</span>
-                  <span>{vehicle.categories}</span>
+                  <span>{vehicle.category}</span>
                 </div>
                 <div className="flex items-center text-gray-600">
                   <span className="font-medium w-24">Location:</span>
