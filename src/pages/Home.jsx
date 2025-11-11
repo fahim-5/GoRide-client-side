@@ -89,65 +89,98 @@ const Home = () => {
         </div>
       </section>
 
-      {/* LATEST VEHICLES SECTION - IMPROVED PROFESSIONAL DESIGN */}
-      <section className="py-20 bg-gray-50 dark:bg-gray-900">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <div className="inline-block mb-4">
-              <span className="text-blue-600 font-semibold text-sm uppercase tracking-wider bg-blue-100/50 px-4 py-2 rounded-full dark:bg-blue-900/50 dark:text-blue-300">
-                New Arrivals
-              </span>
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 dark:text-white">
-              Latest Additions
-            </h2>
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto leading-relaxed dark:text-gray-400">
-              Discover our **newest premium vehicles**, meticulously maintained and ready for your next adventure.
-            </p>
-          </div>
+      <section className="relative py-28 bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/20 dark:from-gray-900 dark:via-gray-950 dark:to-blue-950 overflow-hidden">
+  {/* Background Ornaments */}
+  <div className="absolute top-10 left-16 w-32 h-32 bg-blue-300/10 rounded-full blur-3xl dark:bg-blue-700/10"></div>
+  <div className="absolute bottom-20 right-16 w-40 h-40 bg-indigo-400/10 rounded-full blur-2xl dark:bg-indigo-700/10"></div>
 
-          {loading ? (
-            <div className="flex justify-center items-center py-20">
-              <LoadingSpinner />
-            </div>
-          ) : latestVehicles.length > 0 ? (
-            // Professional grid layout with enhanced card interaction
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-              {latestVehicles.map((vehicle) => (
-                <div 
-                  key={vehicle._id} 
-                  // Added stronger hover effects: subtle lift and shadow change
-                  className="group rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 bg-white dark:bg-gray-800"
-                >
-                  <VehicleCard vehicle={vehicle} />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-20 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
-              <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
-                </svg>
+  <div className="container mx-auto px-4 relative z-10">
+    {/* Header Section */}
+    <div className="text-center mb-24">
+      <div className="inline-flex items-center gap-3 mb-6 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full shadow-md">
+        <span className="relative flex h-2.5 w-2.5">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white/80 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
+        </span>
+        <span className="text-white font-semibold text-sm uppercase tracking-widest">
+          Fresh Arrivals
+        </span>
+      </div>
+
+      
+
+      <div className="w-28 h-1.5 bg-gradient-to-r from-blue-500 to-indigo-500 mx-auto mb-8 rounded-full"></div>
+
+      
+    </div>
+
+    {/* Content Area */}
+    {loading ? (
+      <div className="flex justify-center items-center py-32">
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+          <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-blue-600 font-medium text-sm">
+            Loading...
+          </span>
+        </div>
+      </div>
+    ) : latestVehicles.length > 0 ? (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-24">
+        {latestVehicles.map((vehicle, index) => (
+          <div
+            key={vehicle._id}
+            className="group relative rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 bg-white dark:bg-gray-800"
+            style={{ animationDelay: `${index * 100}ms` }}
+          >
+            {/* Premium badge */}
+            {index < 2 && (
+              <div className="absolute top-4 right-4 z-10 bg-gradient-to-r from-amber-400 to-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
+                PREMIUM
               </div>
-              <p className="text-gray-600 text-xl font-semibold dark:text-gray-300">Nothing new yet!</p>
-              <p className="text-gray-500 mt-2 dark:text-gray-400">Check back soon for the latest vehicle listings.</p>
-            </div>
-          )}
-
-          <div className="text-center">
-            <Link 
-              to="/vehicles"
-              className="inline-flex items-center space-x-3 bg-gray-900 text-white px-8 py-4 rounded-2xl font-semibold hover:bg-gray-800 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl dark:bg-blue-600 dark:hover:bg-blue-700"
-            >
-              <span>View Complete Fleet</span>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Link>
+            )}
+            <VehicleCard vehicle={vehicle} />
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div className="text-center py-24 bg-white/80 dark:bg-gray-800/70 backdrop-blur-md rounded-3xl shadow-lg border border-gray-200/50 dark:border-gray-700/50">
+        <div className="relative w-32 h-32 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-8 dark:from-blue-900/30 dark:to-indigo-900/30">
+          <svg className="w-16 h-16 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+          </svg>
+          <div className="absolute -top-2 -right-2 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
           </div>
         </div>
-      </section>
+        <h3 className="text-2xl font-bold text-gray-800 mb-3 dark:text-white">Nothing new yet!</h3>
+        <p className="text-gray-600 max-w-md mx-auto dark:text-gray-400">
+          We’re curating new premium rides for your next adventure. Please check back soon!
+        </p>
+      </div>
+    )}
+
+    {/* CTA */}
+    <div className="text-center">
+      <Link
+        to="/vehicles"
+        className="group inline-flex items-center space-x-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-10 py-5 rounded-2xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:-translate-y-1 shadow-xl hover:shadow-2xl"
+      >
+        <span>Explore Complete Fleet</span>
+        <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+        </svg>
+      </Link>
+
+      <p className="text-gray-500 text-sm mt-6 dark:text-gray-400">
+        Over <span className="font-semibold text-blue-600 dark:text-blue-400">50+</span> premium vehicles available — tailored for your comfort and class.
+      </p>
+    </div>
+  </div>
+</section>
+
+     
 
       {/* FEATURES & CATEGORIES SECTION */}
       <section className="py-20 bg-white dark:bg-gray-900">

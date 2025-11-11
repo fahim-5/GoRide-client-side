@@ -1,24 +1,37 @@
 import axios from 'axios';
-import { auth } from '../utils/firebase'; // Import your firebase config
+import { auth } from '../utils/firebase';
 
 const API = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
-  timeout: 10000,
+  timeout: 15000, // Increased timeout
 });
+
+// Retry configuration
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000; // 1 second
+
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 API.interceptors.request.use(
   async (config) => {
-    // Get the current user from Firebase auth
     const currentUser = auth.currentUser;
     if (currentUser) {
       try {
-        // Get fresh token for each request
         const token = await currentUser.getIdToken();
         config.headers.Authorization = `Bearer ${token}`;
       } catch (error) {
         console.error('Error getting Firebase token:', error);
       }
     }
+    
+    // Add timestamp to avoid caching issues
+    if (config.method === 'get') {
+      config.params = {
+        ...config.params,
+        _t: Date.now()
+      };
+    }
+    
     return config;
   },
   (error) => {
@@ -26,12 +39,37 @@ API.interceptors.request.use(
   }
 );
 
-// Minimal response interceptor - no redirects
+// Enhanced response interceptor with retry logic
 API.interceptors.response.use(
   (response) => response,
-  (error) => {
-    // Just log the error, don't handle redirects
-    console.error('API Error:', error.response?.status, error.message);
+  async (error) => {
+    const originalRequest = error.config;
+    
+    // If it's a 429 error and we haven't retried yet
+    if (error.response?.status === 429 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      
+      for (let i = 0; i < MAX_RETRIES; i++) {
+        console.log(`🔄 Retrying request (${i + 1}/${MAX_RETRIES}) after 429 error`);
+        await sleep(RETRY_DELAY * (i + 1)); // Exponential backoff
+        
+        try {
+          return await API(originalRequest);
+        } catch (retryError) {
+          if (i === MAX_RETRIES - 1) {
+            console.error('❌ All retries failed after 429 error');
+            break;
+          }
+        }
+      }
+    }
+    
+    console.error('API Error:', {
+      status: error.response?.status,
+      message: error.message,
+      url: error.config?.url
+    });
+    
     return Promise.reject(error);
   }
 );
