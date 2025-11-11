@@ -8,7 +8,7 @@ import {
   signInWithPopup,
   updateProfile
 } from 'firebase/auth';
-import { auth } from '../pages/utils/firebase'; // Assuming the firebase setup is correct
+import { auth } from '../pages/utils/firebase';
 
 const AuthContext = createContext();
 
@@ -26,6 +26,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log('AuthStateChanged:', user);
       setUser(user);
       setLoading(false);
     });
@@ -39,6 +40,8 @@ export const AuthProvider = ({ children }) => {
       displayName: name,
       photoURL: photoURL
     });
+    // Update local user state
+    setUser({ ...userCredential.user });
     return userCredential.user;
   };
 
@@ -68,9 +71,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children} 
-      {/* Conditionally render children after initial loading check */}
-      {loading && <div>Loading Auth...</div>} 
+      {children}
     </AuthContext.Provider>
   );
 };

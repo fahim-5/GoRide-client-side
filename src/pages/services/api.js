@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { auth } from '../utils/firebase'; // Import your firebase config
 
 const API = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
@@ -6,10 +7,17 @@ const API = axios.create({
 });
 
 API.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+  async (config) => {
+    // Get the current user from Firebase auth
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      try {
+        // Get fresh token for each request
+        const token = await currentUser.getIdToken();
+        config.headers.Authorization = `Bearer ${token}`;
+      } catch (error) {
+        console.error('Error getting Firebase token:', error);
+      }
     }
     return config;
   },
@@ -18,15 +26,12 @@ API.interceptors.request.use(
   }
 );
 
+// Minimal response interceptor - no redirects
 API.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
-    }
+    // Just log the error, don't handle redirects
+    console.error('API Error:', error.response?.status, error.message);
     return Promise.reject(error);
   }
 );

@@ -6,6 +6,8 @@ const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
 
+  console.log('PrivateRoute - Loading:', loading, 'User:', user); // Debug log
+
   // 1. Show spinner while Firebase checks auth state
   if (loading) {
     return <LoadingSpinner />;
@@ -13,6 +15,7 @@ const PrivateRoute = ({ children }) => {
 
   // 2. If check is done AND no user is found, redirect to login
   if (!user) {
+    console.log('PrivateRoute - No user found, redirecting to login'); // Debug log
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

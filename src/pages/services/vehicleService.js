@@ -1,7 +1,7 @@
 import API from './api';
 
-export const getAllVehicles = async () => {
-  const response = await API.get('/vehicles');
+export const getAllVehicles = async (filters = {}) => {
+  const response = await API.get('/vehicles', { params: filters });
   return response;
 };
 
@@ -10,7 +10,13 @@ export const getVehicle = async (id) => {
   return response;
 };
 
-export const getMyVehicles = async (userEmail) => {
+export const getMyVehicles = async () => {
+  const response = await API.get('/vehicles/my-vehicles');
+  return response;
+};
+
+// Keep for backward compatibility
+export const getMyVehiclesByEmail = async (userEmail) => {
   const response = await API.get(`/vehicles/user/${userEmail}`);
   return response;
 };

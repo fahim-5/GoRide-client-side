@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 
-const VehicleForm = ({ vehicle, onSubmit, loading }) => {
+const VehicleForm = ({ vehicle, onSubmit, loading, isUpdate = false }) => {
   const { user } = useAuth();
   const [formData, setFormData] = useState({
     vehicleName: '',
@@ -18,7 +18,8 @@ const VehicleForm = ({ vehicle, onSubmit, loading }) => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    if (vehicle) {
+    if (vehicle && isUpdate) {
+      // For update - use all vehicle data including userEmail
       setFormData({
         vehicleName: vehicle.vehicleName || '',
         owner: vehicle.owner || '',
@@ -28,17 +29,18 @@ const VehicleForm = ({ vehicle, onSubmit, loading }) => {
         availability: vehicle.availability || 'Available',
         description: vehicle.description || '',
         coverImage: vehicle.coverImage || '',
-        userEmail: vehicle.userEmail || '',
+        userEmail: vehicle.userEmail || '', // Keep original userEmail for updates
         categories: vehicle.categories || ''
       });
     } else if (user) {
+      // For new vehicle - set user email and name
       setFormData(prev => ({
         ...prev,
         userEmail: user.email,
-        owner: user.displayName || ''
+        owner: user.displayName || user.email.split('@')[0] // Fallback to email username
       }));
     }
-  }, [vehicle, user]);
+  }, [vehicle, user, isUpdate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -64,6 +66,17 @@ const VehicleForm = ({ vehicle, onSubmit, loading }) => {
     if (!formData.description.trim()) newErrors.description = 'Description is required';
     if (!formData.coverImage.trim()) newErrors.coverImage = 'Cover image URL is required';
     if (!formData.categories) newErrors.categories = 'Vehicle type is required';
+    if (!formData.userEmail) newErrors.userEmail = 'Email is required';
+    
+    // Validate URL format
+    if (formData.coverImage.trim()) {
+      try {
+        new URL(formData.coverImage);
+      } catch (e) {
+        newErrors.coverImage = 'Please enter a valid URL';
+      }
+    }
+    
     return newErrors;
   };
 
@@ -74,13 +87,29 @@ const VehicleForm = ({ vehicle, onSubmit, loading }) => {
       setErrors(newErrors);
       return;
     }
-    onSubmit(formData);
+    
+    // Prepare data for submission
+    const submitData = {
+      vehicleName: formData.vehicleName.trim(),
+      owner: formData.owner.trim(),
+      category: formData.category,
+      pricePerDay: Number(formData.pricePerDay),
+      location: formData.location.trim(),
+      availability: formData.availability,
+      description: formData.description.trim(),
+      coverImage: formData.coverImage.trim(),
+      categories: formData.categories,
+      // userEmail is automatically set by backend for new vehicles
+      // For updates, it's preserved from the original vehicle
+    };
+    
+    onSubmit(submitData);
   };
 
   return (
     <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
-        {vehicle ? 'Update Vehicle' : 'Add New Vehicle'}
+        {isUpdate ? 'Update Vehicle' : 'Add New Vehicle'}
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -179,6 +208,7 @@ const VehicleForm = ({ vehicle, onSubmit, loading }) => {
               }`}
               placeholder="e.g., 70"
               min="1"
+              step="0.01"
             />
             {errors.pricePerDay && <p className="text-red-500 text-sm mt-1">{errors.pricePerDay}</p>}
           </div>
@@ -219,7 +249,7 @@ const VehicleForm = ({ vehicle, onSubmit, loading }) => {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Cover Image URL *
-            </label>
+          </label>
           <input
             type="url"
             name="coverImage"
@@ -231,6 +261,21 @@ const VehicleForm = ({ vehicle, onSubmit, loading }) => {
             placeholder="https://example.com/image.jpg"
           />
           {errors.coverImage && <p className="text-red-500 text-sm mt-1">{errors.coverImage}</p>}
+          
+          {/* Image Preview */}
+          {formData.coverImage && !errors.coverImage && (
+            <div className="mt-2">
+              <p className="text-sm text-gray-600 mb-1">Preview:</p>
+              <img 
+                src={formData.coverImage} 
+                alt="Vehicle preview" 
+                className="w-full max-w-xs h-32 object-cover rounded-lg border"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                }}
+              />
+            </div>
+          )}
         </div>
 
         <div>
@@ -262,6 +307,9 @@ const VehicleForm = ({ vehicle, onSubmit, loading }) => {
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
             readOnly
           />
+          <p className="text-xs text-gray-500 mt-1">
+            This email cannot be changed and will be used to identify your vehicles
+          </p>
         </div>
 
         <button
@@ -269,7 +317,7 @@ const VehicleForm = ({ vehicle, onSubmit, loading }) => {
           disabled={loading}
           className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
         >
-          {loading ? 'Processing...' : (vehicle ? 'Update Vehicle' : 'Add Vehicle')}
+          {loading ? 'Processing...' : (isUpdate ? 'Update Vehicle' : 'Add Vehicle')}
         </button>
       </form>
     </div>
