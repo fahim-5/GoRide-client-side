@@ -11,7 +11,6 @@ const SearchFilter = ({ onFilter, onSort, isDark, initialFilters = {} }) => {
 
   const [sortBy, setSortBy] = useState('');
 
-  // Update local state when initialFilters change
   useEffect(() => {
     setFilters(prev => ({
       ...prev,
@@ -19,7 +18,6 @@ const SearchFilter = ({ onFilter, onSort, isDark, initialFilters = {} }) => {
     }));
   }, [initialFilters]);
 
-  // Handle filter changes and call onFilter immediately
   const handleFilterChange = (key, value) => {
     const newFilters = {
       ...filters,
@@ -27,13 +25,11 @@ const SearchFilter = ({ onFilter, onSort, isDark, initialFilters = {} }) => {
     };
     setFilters(newFilters);
     
-    // Call onFilter immediately with updated filters
     if (onFilter) {
       onFilter(newFilters);
     }
   };
 
-  // Handle sort changes and call onSort immediately
   const handleSortChange = (value) => {
     setSortBy(value);
     if (onSort) {
@@ -41,7 +37,6 @@ const SearchFilter = ({ onFilter, onSort, isDark, initialFilters = {} }) => {
     }
   };
 
-  // Clear all filters
   const clearFilters = () => {
     const clearedFilters = {
       category: '',
@@ -60,10 +55,8 @@ const SearchFilter = ({ onFilter, onSort, isDark, initialFilters = {} }) => {
     }
   };
 
-  // Check if any filters are active
   const hasActiveFilters = Object.values(filters).some(value => value !== '') || sortBy !== '';
 
-  // Dynamic styles for theme
   const containerClass = isDark
     ? 'bg-gray-800 border-gray-700 text-gray-200 shadow-lg'
     : 'bg-white border-gray-200 text-gray-800 shadow-md';
@@ -77,7 +70,6 @@ const SearchFilter = ({ onFilter, onSort, isDark, initialFilters = {} }) => {
   return (
     <div className={`${containerClass} p-6 rounded-lg border transition-all duration-300`}>
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
-        {/* Category Filter */}
         <div>
           <label className={`block text-sm font-medium mb-2 ${labelClass}`}>
             Category
@@ -100,7 +92,6 @@ const SearchFilter = ({ onFilter, onSort, isDark, initialFilters = {} }) => {
           </select>
         </div>
 
-        {/* Location Filter */}
         <div>
           <label className={`block text-sm font-medium mb-2 ${labelClass}`}>
             Location
@@ -114,7 +105,6 @@ const SearchFilter = ({ onFilter, onSort, isDark, initialFilters = {} }) => {
           />
         </div>
 
-        {/* Price Range Filter */}
         <div>
           <label className={`block text-sm font-medium mb-2 ${labelClass}`}>
             Price Range
@@ -134,7 +124,6 @@ const SearchFilter = ({ onFilter, onSort, isDark, initialFilters = {} }) => {
           </select>
         </div>
 
-        {/* Availability Filter */}
         <div>
           <label className={`block text-sm font-medium mb-2 ${labelClass}`}>
             Availability
@@ -150,7 +139,6 @@ const SearchFilter = ({ onFilter, onSort, isDark, initialFilters = {} }) => {
           </select>
         </div>
 
-        {/* Sort By */}
         <div>
           <label className={`block text-sm font-medium mb-2 ${labelClass}`}>
             Sort By
@@ -171,10 +159,8 @@ const SearchFilter = ({ onFilter, onSort, isDark, initialFilters = {} }) => {
         </div>
       </div>
 
-      {/* Active Filters Display and Clear Button */}
       {hasActiveFilters && (
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 border-t border-gray-600">
-          {/* Active Filters Display */}
           <div className="flex flex-wrap gap-2 mb-3 sm:mb-0">
             {filters.category && (
               <span className={`px-3 py-1 rounded-full text-xs font-medium ${
@@ -223,7 +209,6 @@ const SearchFilter = ({ onFilter, onSort, isDark, initialFilters = {} }) => {
             )}
           </div>
 
-          {/* Clear Filters Button */}
           <button
             onClick={clearFilters}
             className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:scale-105 flex items-center space-x-2 ${

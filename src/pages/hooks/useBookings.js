@@ -9,7 +9,7 @@ export const useBookings = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const lastRequestTime = useRef(0);
-  const REQUEST_DELAY = 1000; // 1 second between requests
+  const REQUEST_DELAY = 1000; 
 
   const throttleRequest = () => {
     const now = Date.now();

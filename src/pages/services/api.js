@@ -3,12 +3,11 @@ import { auth } from '../utils/firebase';
 
 const API = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
-  timeout: 15000, // Increased timeout
+  timeout: 15000, 
 });
 
-// Retry configuration
 const MAX_RETRIES = 3;
-const RETRY_DELAY = 1000; // 1 second
+const RETRY_DELAY = 1000; 
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -24,7 +23,6 @@ API.interceptors.request.use(
       }
     }
     
-    // Add timestamp to avoid caching issues
     if (config.method === 'get') {
       config.params = {
         ...config.params,
@@ -39,19 +37,17 @@ API.interceptors.request.use(
   }
 );
 
-// Enhanced response interceptor with retry logic
 API.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
     
-    // If it's a 429 error and we haven't retried yet
     if (error.response?.status === 429 && !originalRequest._retry) {
       originalRequest._retry = true;
       
       for (let i = 0; i < MAX_RETRIES; i++) {
         console.log(`🔄 Retrying request (${i + 1}/${MAX_RETRIES}) after 429 error`);
-        await sleep(RETRY_DELAY * (i + 1)); // Exponential backoff
+        await sleep(RETRY_DELAY * (i + 1)); 
         
         try {
           return await API(originalRequest);

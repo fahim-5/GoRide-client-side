@@ -1,4 +1,3 @@
-// components/common/VehicleModal.jsx
 import { useEffect } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { FaMapMarkerAlt, FaGasPump, FaUsers, FaStar, FaTag, FaDollarSign } from 'react-icons/fa';
@@ -6,7 +5,6 @@ import { FaMapMarkerAlt, FaGasPump, FaUsers, FaStar, FaTag, FaDollarSign } from 
 const VehicleModal = ({ vehicle, isOpen, onClose }) => {
   const { isDark } = useTheme();
 
-  // Close modal on Escape key press
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === 'Escape') onClose();
@@ -14,7 +12,7 @@ const VehicleModal = ({ vehicle, isOpen, onClose }) => {
 
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'hidden'; // Prevent background scroll
+      document.body.style.overflow = 'hidden'; 
     }
 
     return () => {
@@ -45,7 +43,6 @@ const VehicleModal = ({ vehicle, isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-colors duration-300">
-      {/* Modal Overlay */}
       <div 
         className={`absolute inset-0 transition-colors duration-300 ${
           isDark ? 'bg-black/70' : 'bg-black/60'
@@ -53,11 +50,9 @@ const VehicleModal = ({ vehicle, isOpen, onClose }) => {
         onClick={onClose}
       ></div>
       
-      {/* Modal Content */}
       <div className={`relative rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl transition-colors duration-300 ${
         isDark ? 'bg-gray-800' : 'bg-white'
       }`}>
-        {/* Close Button */}
         <button
           onClick={onClose}
           className={`absolute top-4 right-4 z-10 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-110 shadow-lg ${
@@ -74,7 +69,6 @@ const VehicleModal = ({ vehicle, isOpen, onClose }) => {
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-          {/* Image Section */}
           <div className="relative h-80 lg:h-full min-h-[400px] lg:min-h-[500px]">
             <img
               src={coverImage || '/default-vehicle.jpg'}
@@ -85,7 +79,6 @@ const VehicleModal = ({ vehicle, isOpen, onClose }) => {
               }}
             />
             
-            {/* Availability Badge */}
             <div className={`absolute top-4 left-4 px-3 py-2 rounded-full text-sm font-semibold backdrop-blur-sm border ${
               isAvailable 
                 ? 'bg-green-500/90 border-green-400/30 text-white' 
@@ -94,7 +87,6 @@ const VehicleModal = ({ vehicle, isOpen, onClose }) => {
               {isAvailable ? 'Available' : 'Booked'}
             </div>
 
-            {/* Rating Badge */}
             {rating && (
               <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm text-white px-3 py-2 rounded-full text-sm font-semibold flex items-center space-x-2">
                 <FaStar className="text-yellow-400" size={14} />
@@ -102,7 +94,6 @@ const VehicleModal = ({ vehicle, isOpen, onClose }) => {
               </div>
             )}
 
-            {/* Price Overlay */}
             <div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-sm text-white px-4 py-3 rounded-xl">
               <div className="flex items-center space-x-1">
                 <FaDollarSign className="text-green-400" size={16} />
@@ -112,9 +103,7 @@ const VehicleModal = ({ vehicle, isOpen, onClose }) => {
             </div>
           </div>
 
-          {/* Content Section */}
           <div className="p-8">
-            {/* Header */}
             <div className="mb-6">
               <div className="flex items-center gap-3 mb-4">
                 <span className={`px-3 py-1 rounded-lg text-sm font-medium ${
@@ -141,7 +130,6 @@ const VehicleModal = ({ vehicle, isOpen, onClose }) => {
                 {vehicleName}
               </h2>
               
-              {/* Location */}
               <div className="flex items-center space-x-2 mb-4">
                 <FaMapMarkerAlt className={`flex-shrink-0 ${
                   isDark ? 'text-blue-400' : 'text-blue-500'
@@ -154,7 +142,6 @@ const VehicleModal = ({ vehicle, isOpen, onClose }) => {
               </div>
             </div>
 
-            {/* Key Specifications */}
             <div className={`mb-6 p-6 rounded-xl transition-colors duration-300 ${
               isDark ? 'bg-gray-700/50' : 'bg-gray-50'
             }`}>
@@ -226,7 +213,6 @@ const VehicleModal = ({ vehicle, isOpen, onClose }) => {
               </div>
             </div>
 
-            {/* Description */}
             <div className="mb-6">
               <h3 className={`text-lg font-semibold mb-3 transition-colors duration-300 ${
                 isDark ? 'text-white' : 'text-gray-900'
@@ -240,7 +226,6 @@ const VehicleModal = ({ vehicle, isOpen, onClose }) => {
               </p>
             </div>
 
-            {/* Owner Information */}
             {owner && (
               <div className={`mb-6 p-4 rounded-xl transition-colors duration-300 ${
                 isDark ? 'bg-gray-700/30' : 'bg-green-50'
@@ -268,7 +253,6 @@ const VehicleModal = ({ vehicle, isOpen, onClose }) => {
               </div>
             )}
 
-            {/* Action Buttons */}
             <div className="flex space-x-4">
               <button 
                 className={`flex-1 py-4 px-6 rounded-xl font-semibold transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl ${

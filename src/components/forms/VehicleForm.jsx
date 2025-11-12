@@ -21,7 +21,6 @@ const VehicleForm = ({ vehicle, onSubmit, loading, isUpdate = false }) => {
 
   useEffect(() => {
     if (vehicle && isUpdate) {
-      // For update - use all vehicle data including userEmail
       setFormData({
         vehicleName: vehicle.vehicleName || '',
         owner: vehicle.owner || '',
@@ -34,7 +33,6 @@ const VehicleForm = ({ vehicle, onSubmit, loading, isUpdate = false }) => {
         userEmail: vehicle.userEmail || ''
       });
     } else if (user) {
-      // For new vehicle - set user email and name
       setFormData(prev => ({
         ...prev,
         userEmail: user.email,
@@ -71,7 +69,6 @@ const VehicleForm = ({ vehicle, onSubmit, loading, isUpdate = false }) => {
     if (!formData.coverImage.trim()) newErrors.coverImage = 'Cover image URL is required';
     if (!formData.userEmail) newErrors.userEmail = 'Email is required';
     
-    // Validate URL format
     if (formData.coverImage.trim()) {
       try {
         new URL(formData.coverImage);
@@ -91,7 +88,6 @@ const VehicleForm = ({ vehicle, onSubmit, loading, isUpdate = false }) => {
       return;
     }
     
-    // Prepare data for submission - only include fields that exist in the schema
     const submitData = {
       vehicleName: formData.vehicleName.trim(),
       owner: formData.owner.trim(),
@@ -104,7 +100,7 @@ const VehicleForm = ({ vehicle, onSubmit, loading, isUpdate = false }) => {
       userEmail: formData.userEmail
     };
     
-    console.log('Submitting vehicle data:', submitData); // For debugging
+    console.log('Submitting vehicle data:', submitData); 
     onSubmit(submitData);
   };
 
@@ -121,7 +117,6 @@ const VehicleForm = ({ vehicle, onSubmit, loading, isUpdate = false }) => {
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Vehicle Basic Information */}
         <div className={`p-6 rounded-xl transition-colors duration-300 ${
           isDark ? 'bg-gray-700/50' : 'bg-gray-50'
         }`}>
@@ -180,7 +175,6 @@ const VehicleForm = ({ vehicle, onSubmit, loading, isUpdate = false }) => {
           </div>
         </div>
 
-        {/* Vehicle Specifications */}
         <div className={`p-6 rounded-xl transition-colors duration-300 ${
           isDark ? 'bg-gray-700/50' : 'bg-gray-50'
         }`}>
@@ -245,7 +239,6 @@ const VehicleForm = ({ vehicle, onSubmit, loading, isUpdate = false }) => {
           </div>
         </div>
 
-        {/* Pricing & Location */}
         <div className={`p-6 rounded-xl transition-colors duration-300 ${
           isDark ? 'bg-gray-700/50' : 'bg-gray-50'
         }`}>
@@ -302,7 +295,6 @@ const VehicleForm = ({ vehicle, onSubmit, loading, isUpdate = false }) => {
           </div>
         </div>
 
-        {/* Media & Description */}
         <div className={`p-6 rounded-xl transition-colors duration-300 ${
           isDark ? 'bg-gray-700/50' : 'bg-gray-50'
         }`}>
@@ -335,7 +327,6 @@ const VehicleForm = ({ vehicle, onSubmit, loading, isUpdate = false }) => {
               />
               {errors.coverImage && <p className="text-red-500 text-sm mt-2">{errors.coverImage}</p>}
               
-              {/* Image Preview */}
               {formData.coverImage && !errors.coverImage && (
                 <div className="mt-4">
                   <p className={`text-sm mb-2 transition-colors duration-300 ${
@@ -391,7 +382,6 @@ const VehicleForm = ({ vehicle, onSubmit, loading, isUpdate = false }) => {
           </div>
         </div>
 
-        {/* Owner Information */}
         <div className={`p-6 rounded-xl transition-colors duration-300 ${
           isDark ? 'bg-gray-700/50' : 'bg-gray-50'
         }`}>
@@ -427,7 +417,6 @@ const VehicleForm = ({ vehicle, onSubmit, loading, isUpdate = false }) => {
           </div>
         </div>
 
-        {/* Submit Button */}
         <button
           type="submit"
           disabled={loading}

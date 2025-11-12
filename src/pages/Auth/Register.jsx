@@ -1,8 +1,8 @@
 import RegisterForm from '../../components/forms/RegisterForm';
-import { useTheme } from '../../context/ThemeContext'; // ✅ ADDED: Theme context
+import { useTheme } from '../../context/ThemeContext'; 
 
 const Register = () => {
-  const { isDark } = useTheme(); // ✅ ADDED: Dark mode state
+  const { isDark } = useTheme(); 
 
   return (
     <div className={`min-h-screen py-12 transition-colors duration-300 ${

@@ -15,7 +15,6 @@ const MyBookings = () => {
   const [retryCount, setRetryCount] = useState(0);
   const [lastFetchTime, setLastFetchTime] = useState(0);
 
-  // Dark mode classes
   const bgGradient = isDark 
     ? 'bg-gradient-to-br from-gray-900 to-gray-800' 
     : 'bg-gradient-to-br from-gray-50 to-blue-50';
@@ -27,9 +26,7 @@ const MyBookings = () => {
   const borderColor = isDark ? 'border-gray-700' : 'border-gray-200';
   const hoverBg = isDark ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50';
 
-  // Debounced fetch function
   const fetchBookingsData = useCallback(async (isRetry = false) => {
-    // Prevent too frequent requests (min 2 seconds between requests)
     const now = Date.now();
     if (now - lastFetchTime < 2000 && !isRetry) {
       console.log('⏳ Too soon since last fetch, skipping...');
@@ -75,14 +72,13 @@ const MyBookings = () => {
           toast.error('Please wait a moment before trying again');
         } else if (error.message.includes('404')) {
           toast.error('Bookings not found');
-          setBookings([]); // Set empty array for 404
+          setBookings([]); 
         } else if (error.message.includes('Network error')) {
           toast.error('Network connection failed');
         } else {
           toast.error(errorMsg);
         }
         
-        // Don't clear bookings on error to avoid flickering
         if (!isRetry) {
           setBookings([]);
         }
@@ -115,7 +111,6 @@ const MyBookings = () => {
       await cancelBooking(bookingId);
       toast.success('Booking cancelled successfully');
       
-      // Update local state optimistically
       setBookings(prev => prev.map(booking => 
         booking._id === bookingId 
           ? { ...booking, status: 'cancelled' }
@@ -129,7 +124,6 @@ const MyBookings = () => {
         toast.error('Please wait a moment before trying again');
       } else if (error.message.includes('404')) {
         toast.error('Booking not found or already cancelled');
-        // Remove from local state if not found
         setBookings(prev => prev.filter(booking => booking._id !== bookingId));
       } else if (error.message.includes('Network error')) {
         toast.error('Network error: Please check your connection');
@@ -137,7 +131,6 @@ const MyBookings = () => {
         toast.error(error.message || 'Failed to cancel booking');
       }
       
-      // Refresh data to ensure consistency
       fetchBookingsData(true);
     } finally {
       setCancellingId(null);
@@ -177,18 +170,15 @@ const MyBookings = () => {
     }
   };
 
-  // Check if booking can be cancelled
   const canCancelBooking = (booking) => {
     if (booking.status === 'cancelled') return false;
     
     const startDate = booking.startDate ? new Date(booking.startDate) : new Date();
     const now = new Date();
     
-    // Can cancel if booking starts in more than 24 hours
     return startDate.getTime() - now.getTime() > 24 * 60 * 60 * 1000;
   };
 
-  // Show loading state
   if (loading && bookings.length === 0 && !fetchError) {
     return (
       <div className={`min-h-screen ${bgGradient} flex items-center justify-center transition-colors duration-300`}>
@@ -197,7 +187,6 @@ const MyBookings = () => {
     );
   }
 
-  // Show rate limit error state
   if (fetchError && (fetchError.includes('429') || fetchError.includes('Too many requests'))) {
     return (
       <div className={`min-h-screen ${bgGradient} flex items-center justify-center transition-colors duration-300`}>
@@ -230,7 +219,6 @@ const MyBookings = () => {
     );
   }
 
-  // Show other error state
   if (fetchError && !fetchError.includes('429') && !fetchError.includes('Too many requests')) {
     return (
       <div className={`min-h-screen ${bgGradient} flex items-center justify-center transition-colors duration-300`}>
@@ -282,7 +270,6 @@ const MyBookings = () => {
     <div className={`min-h-screen ${bgGradient} py-8 transition-colors duration-300`}>
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
-          {/* Header Section */}
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent mb-4">
               My Bookings
@@ -292,7 +279,6 @@ const MyBookings = () => {
             </p>
           </div>
 
-          {/* Stats Card */}
           <div className={`${cardBg} rounded-2xl shadow-lg p-6 mb-8 transition-colors duration-300`}>
             <div className="flex flex-col lg:flex-row justify-between items-center">
               <div className="flex items-center space-x-6 mb-4 lg:mb-0">
@@ -320,7 +306,6 @@ const MyBookings = () => {
             </div>
           </div>
 
-          {/* Bookings List */}
           {bookings.length === 0 ? (
             <div className={`${cardBg} rounded-2xl shadow-lg p-12 text-center transition-colors duration-300`}>
               <div className={`w-24 h-24 ${isDark ? 'bg-blue-900/50' : 'bg-blue-100'} rounded-full flex items-center justify-center mx-auto mb-6 transition-colors duration-300`}>
@@ -357,7 +342,6 @@ const MyBookings = () => {
                 return (
                   <div key={booking._id} className={`${cardBg} rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border ${borderColor} ${hoverBg}`}>
                     <div className="flex flex-col lg:flex-row lg:items-start justify-between">
-                      {/* Booking Details */}
                       <div className="flex-1">
                         <div className="flex items-start space-x-4 mb-4">
                           <img 
@@ -389,7 +373,6 @@ const MyBookings = () => {
                           </div>
                         </div>
                         
-                        {/* Booking Info Card */}
                         <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 p-4 ${isDark ? 'bg-gray-700/50' : 'bg-gray-50'} rounded-xl transition-colors duration-300`}>
                           <div>
                             <span className={`font-medium ${textColor} block mb-1 transition-colors duration-300`}>Booking Dates</span>
@@ -426,7 +409,6 @@ const MyBookings = () => {
                           </div>
                         </div>
                         
-                        {/* Additional Booking Info */}
                         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                           <div>
                             <span className={`font-medium ${textColor} transition-colors duration-300`}>Booking ID:</span>
@@ -440,7 +422,6 @@ const MyBookings = () => {
                           </div>
                         </div>
                         
-                        {/* Notes */}
                         {booking.notes && (
                           <div className="mt-4">
                             <span className={`font-medium ${textColor} transition-colors duration-300`}>Notes:</span>
@@ -449,7 +430,6 @@ const MyBookings = () => {
                         )}
                       </div>
                       
-                      {/* Action Buttons */}
                       <div className="mt-4 lg:mt-0 lg:ml-6 lg:self-start flex flex-col space-y-3">
                         {booking.status === 'confirmed' && canCancel && (
                           <button 
@@ -479,7 +459,6 @@ const MyBookings = () => {
                           </div>
                         )}
                         
-                        {/* Check if booking is upcoming or active */}
                         {new Date(booking.startDate) > new Date() && (
                           <div className={`text-xs ${isDark ? 'text-green-400 bg-green-900/30' : 'text-green-600 bg-green-50'} px-3 py-1 rounded-lg text-center border ${isDark ? 'border-green-700/50' : 'border-green-200'} transition-colors duration-300`}>
                             🟢 Upcoming
@@ -509,7 +488,6 @@ const MyBookings = () => {
             </div>
           )}
 
-          {/* Help Section */}
           {bookings.length > 0 && (
             <div className={`mt-12 ${isDark ? 'bg-blue-900/30 border-blue-700' : 'bg-blue-50 border-blue-200'} rounded-2xl p-6 border transition-colors duration-300`}>
               <div className="flex items-start space-x-4">

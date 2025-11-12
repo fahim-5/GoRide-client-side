@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useVehicles } from '../hooks/useVehicles';
 import { useBookings } from '../hooks/useBookings';
-import { useTheme } from '../../context/ThemeContext'; // ✅ ADDED: Theme context
+import { useTheme } from '../../context/ThemeContext'; 
 import { toast } from 'react-hot-toast';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 
@@ -11,7 +11,7 @@ const VehicleDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { isDark } = useTheme(); // ✅ ADDED: Dark mode state
+  const { isDark } = useTheme(); 
   const { getVehicleById } = useVehicles();
   const { createBooking } = useBookings();
   const [vehicle, setVehicle] = useState(null);
@@ -19,7 +19,6 @@ const VehicleDetails = () => {
   const [bookingLoading, setBookingLoading] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
 
-  // Dark mode classes
   const bgGradient = isDark 
     ? 'bg-gradient-to-br from-gray-900 to-gray-800' 
     : 'bg-gradient-to-br from-gray-50 to-blue-50';
@@ -88,7 +87,6 @@ const VehicleDetails = () => {
       await createBooking(bookingData);
       toast.success('Vehicle booked successfully!');
       
-      // Refresh vehicle data to update availability
       const updatedVehicle = await getVehicleById(id);
       setVehicle(updatedVehicle);
     } catch (error) {
@@ -99,7 +97,6 @@ const VehicleDetails = () => {
     }
   };
 
-  // Generate multiple image URLs for gallery
   const imageUrls = vehicle ? [
     vehicle.coverImage || vehicle.imageURL || '/default-vehicle.jpg',
     vehicle.coverImage || vehicle.imageURL || '/default-vehicle.jpg',
@@ -143,7 +140,6 @@ const VehicleDetails = () => {
     <div className={`min-h-screen ${bgGradient} py-8 transition-colors duration-300`}>
       <div className="container mx-auto px-4">
         <div className="max-w-7xl mx-auto">
-          {/* Breadcrumb */}
           <nav className="mb-8">
             <ol className="flex items-center space-x-2 text-sm">
               <li>
@@ -173,9 +169,7 @@ const VehicleDetails = () => {
 
           <div className={`${cardBg} rounded-2xl shadow-xl overflow-hidden transition-colors duration-300`}>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
-              {/* Vehicle Images Section */}
               <div className="space-y-4">
-                {/* Main Image */}
                 <div className={`relative rounded-xl overflow-hidden ${isDark ? 'bg-gray-700' : 'bg-gray-100'} transition-colors duration-300`}>
                   <img
                     src={imageUrls[activeImage]}
@@ -185,7 +179,6 @@ const VehicleDetails = () => {
                       e.target.src = '/default-vehicle.jpg';
                     }}
                   />
-                  {/* Availability Badge */}
                   <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-semibold ${
                     vehicle.availability === 'Available' 
                       ? 'bg-green-500 text-white' 
@@ -195,7 +188,6 @@ const VehicleDetails = () => {
                   </div>
                 </div>
 
-                {/* Image Thumbnails */}
                 <div className="grid grid-cols-3 gap-3">
                   {imageUrls.map((url, index) => (
                     <button
@@ -220,9 +212,7 @@ const VehicleDetails = () => {
                 </div>
               </div>
 
-              {/* Vehicle Details Section */}
               <div className="space-y-6">
-                {/* Header with Price */}
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <h1 className={`text-3xl lg:text-4xl font-bold ${textColor} mb-2 transition-colors duration-300`}>
@@ -259,7 +249,6 @@ const VehicleDetails = () => {
                   </div>
                 </div>
 
-                {/* Key Specifications */}
                 <div className={`${sectionBg} rounded-xl p-6 transition-colors duration-300`}>
                   <h3 className={`text-lg font-semibold ${textColor} mb-4 transition-colors duration-300`}>Vehicle Specifications</h3>
                   <div className="grid grid-cols-2 gap-4">
@@ -290,7 +279,6 @@ const VehicleDetails = () => {
                   </div>
                 </div>
 
-                {/* Description */}
                 <div className={`${cardBg} border ${borderColor} rounded-xl p-6 transition-colors duration-300`}>
                   <h3 className={`text-lg font-semibold ${textColor} mb-3 flex items-center transition-colors duration-300`}>
                     <svg className="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -303,7 +291,6 @@ const VehicleDetails = () => {
                   </p>
                 </div>
 
-                {/* Features & Amenities */}
                 <div className={`${cardBg} border ${borderColor} rounded-xl p-6 transition-colors duration-300`}>
                   <h3 className={`text-lg font-semibold ${textColor} mb-4 flex items-center transition-colors duration-300`}>
                     <svg className="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -332,7 +319,6 @@ const VehicleDetails = () => {
                   </div>
                 </div>
 
-                {/* Booking Section */}
                 <div className={`bg-gradient-to-r ${isDark ? 'from-blue-900/30 to-indigo-900/30' : 'from-blue-50 to-indigo-50'} rounded-xl p-6 border ${isDark ? 'border-blue-700/50' : 'border-blue-200'} transition-colors duration-300`}>
                   <div className="text-center mb-4">
                     <h3 className={`text-xl font-semibold ${textColor} mb-2 transition-colors duration-300`}>Ready to Book?</h3>
@@ -361,7 +347,6 @@ const VehicleDetails = () => {
                         )}
                       </button>
                       
-                      {/* Quick Info */}
                       <div className={`flex justify-between items-center text-sm ${isDark ? 'bg-gray-700 text-gray-300' : 'bg-white text-gray-600'} rounded-lg p-3 transition-colors duration-300`}>
                         <div className="flex items-center space-x-1">
                           <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -407,7 +392,6 @@ const VehicleDetails = () => {
             </div>
           </div>
 
-          {/* Safety & Guidelines Section */}
           <div className={`mt-8 ${cardBg} rounded-2xl shadow-lg p-6 transition-colors duration-300`}>
             <h3 className={`text-xl font-semibold ${textColor} mb-4 text-center transition-colors duration-300`}>Safety & Guidelines</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

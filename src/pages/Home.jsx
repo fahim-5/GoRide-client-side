@@ -10,7 +10,6 @@ import { useTheme } from '../context/ThemeContext';
 
 const HERO_IMAGE_URL = 'https://images.unsplash.com/photo-1725916631378-358ebe6ad000?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y2FyJTIwZHJhd2luZ3xlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&q=60&w=600';
 
-// React Spring Animated Counter
 const AnimatedCounter = ({ value }) => {
   const { number } = useSpring({
     from: { number: 0 },
@@ -22,8 +21,6 @@ const AnimatedCounter = ({ value }) => {
   return <animated.span>{number.to(n => n.toFixed(0))}</animated.span>;
 };
 
-// Date-fns Date Badge
-// Simplified and Robust DateBadge Component
 const DateBadge = ({ createdAt }) => {
   const getDateStatus = (dateString) => {
     if (!dateString) return { text: 'NEW', color: 'bg-green-500' };
@@ -66,7 +63,6 @@ const Home = () => {
   const { isDark } = useTheme();
   const [latestVehicles, setLatestVehicles] = useState([]);
 
-  // KEEP YOUR EXACT SAME DATA FETCHING LOGIC
   useEffect(() => {
     const fetchLatestVehicles = async () => {
       try {
@@ -74,7 +70,6 @@ const Home = () => {
         const vehicles = await getLatestVehicles();
         console.log('🚗 Raw vehicles response:', vehicles);
         
-        // Get latest 6 vehicles - EXACT SAME LOGIC
         const latestSix = Array.isArray(vehicles) ? vehicles.slice(0, 6) : [];
         console.log('✅ Final 6 vehicles:', latestSix);
         setLatestVehicles(latestSix);
@@ -89,9 +84,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen transition-colors duration-300">
-      {/* BANNER SECTION - Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Background with gradient overlay */}
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: `url('${HERO_IMAGE_URL}')` }}
@@ -103,7 +96,6 @@ const Home = () => {
           }`}></div>
         </div>
         
-        {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className={`absolute -top-40 -right-40 w-80 h-80 rounded-full blur-3xl ${
             isDark ? 'bg-green-500/5' : 'bg-green-500/10'
@@ -113,7 +105,6 @@ const Home = () => {
           }`}></div>
         </div>
 
-        {/* Hero Content */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -203,7 +194,6 @@ const Home = () => {
           </motion.div>
         </motion.div>
 
-        {/* Scroll indicator */}
         <motion.div 
           className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
           animate={{ y: [0, 10, 0] }}
@@ -219,13 +209,11 @@ const Home = () => {
         </motion.div>
       </section>
 
-      {/* DYNAMIC SECTION - Latest 6 Vehicles */}
       <section className={`relative py-28 overflow-hidden transition-colors duration-300 ${
         isDark
           ? 'bg-gradient-to-br from-gray-900 via-gray-800/30 to-gray-900/20'
           : 'bg-gradient-to-br from-gray-50 via-green-50/30 to-green-50/20'
       }`}>
-        {/* Background Ornaments */}
         <div className={`absolute top-10 left-16 w-32 h-32 rounded-full blur-3xl ${
           isDark ? 'bg-green-300/5' : 'bg-green-300/10'
         }`}></div>
@@ -234,7 +222,6 @@ const Home = () => {
         }`}></div>
 
         <div className="container mx-auto px-4 relative z-10">
-          {/* Header Section */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -266,7 +253,6 @@ const Home = () => {
             <div className="w-28 h-1.5 bg-gradient-to-r from-green-500 to-green-600 mx-auto mb-8 rounded-full"></div>
           </motion.div>
 
-          {/* Latest Vehicles Grid - 6 vehicles - SIMPLIFIED DISPLAY */}
           {loading ? (
             <div className="flex justify-center items-center py-32">
               <LoadingSpinner />
@@ -288,7 +274,6 @@ const Home = () => {
                     isDark ? 'bg-gray-800' : 'bg-white'
                   }`}
                 >
-                  {/* Date-fns Integration */}
                   <DateBadge createdAt={vehicle.createdAt} />
                   <VehicleCard vehicle={vehicle} />
                 </motion.div>
@@ -324,7 +309,6 @@ const Home = () => {
             </div>
           )}
 
-          {/* CTA */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -347,7 +331,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* STATIC SECTION 1 - Top Categories */}
       <section className={`py-20 transition-colors duration-300 ${
         isDark ? 'bg-gray-900' : 'bg-white'
       }`}>
@@ -435,7 +418,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* STATIC SECTION 2 - About TravelEase */}
       <section className={`py-20 transition-colors duration-300 ${
         isDark
           ? 'bg-gradient-to-br from-gray-800 to-gray-900'
@@ -443,7 +425,6 @@ const Home = () => {
       }`}>
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            {/* Content */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -471,7 +452,6 @@ const Home = () => {
                 </p>
               </div>
               
-              {/* React Spring Animated Counters */}
               <div className="grid grid-cols-2 gap-6 mb-8">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-green-600 mb-2">
@@ -508,7 +488,6 @@ const Home = () => {
               </Link>
             </motion.div>
 
-            {/* Feature Cards */}
             <div className="space-y-6">
               {[
                 {
@@ -564,7 +543,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* CTA SECTION */}
       <section className="py-20 bg-gradient-to-r from-green-600 to-green-700">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">

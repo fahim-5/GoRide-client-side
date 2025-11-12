@@ -44,7 +44,6 @@ const Navbar = () => {
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1">
             <Link 
               to="/" 
@@ -102,9 +101,7 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Desktop Auth Section */}
           <div className="hidden md:flex items-center space-x-3">
-            {/* Theme Toggle */}
             <ThemeToggle />
             
             {user ? (
@@ -149,7 +146,6 @@ const Navbar = () => {
                   </svg>
                 </div>
 
-                {/* Profile Dropdown - Opens on hover */}
                 {isProfileOpen && (
                   <div 
                     className={`absolute right-0 mt-2 w-64 rounded-xl shadow-lg border py-2 z-50 transition-colors duration-300 ${
@@ -246,9 +242,7 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile menu button */}
           <div className="flex items-center space-x-2 md:hidden">
-            {/* Theme Toggle for Mobile */}
             <ThemeToggle />
             
             <button 
@@ -272,7 +266,6 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className={`md:hidden border-t backdrop-blur-sm transition-colors duration-300 ${
             isDark 
@@ -341,7 +334,6 @@ const Navbar = () => {
               )}
             </div>
 
-            {/* Mobile Auth Section */}
             <div className={`border-t pt-4 pb-2 ${
               isDark ? 'border-gray-700' : 'border-gray-200'
             }`}>

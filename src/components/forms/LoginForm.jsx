@@ -197,7 +197,6 @@ const LoginForm = () => {
             ? 'bg-gray-800 border-gray-700'
             : 'bg-white border-gray-100'
         }`}>
-          {/* Header */}
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
               <Link to="/" className="flex items-center space-x-2 group">
@@ -218,7 +217,6 @@ const LoginForm = () => {
             </p>
           </div>
 
-          {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${
@@ -301,7 +299,6 @@ const LoginForm = () => {
             </button>
           </form>
 
-          {/* Divider */}
           <div className="my-8 flex items-center">
             <div className={`flex-1 border-t transition-colors duration-300 ${
               isDark ? 'border-gray-600' : 'border-gray-300'
@@ -316,7 +313,6 @@ const LoginForm = () => {
             }`}></div>
           </div>
 
-          {/* Google Login */}
           <button
             onClick={handleGoogleLogin}
             disabled={loading}
@@ -335,7 +331,6 @@ const LoginForm = () => {
             <span>Continue with Google</span>
           </button>
 
-          {/* Register Link */}
           <div className="mt-8 text-center">
             <p className={`transition-colors duration-300 ${
               isDark ? 'text-gray-400' : 'text-gray-600'
@@ -352,7 +347,6 @@ const LoginForm = () => {
         </div>
       </div>
 
-      {/* Forgot Password Modal */}
       {showForgotPassword && <ForgotPasswordForm />}
     </>
   );

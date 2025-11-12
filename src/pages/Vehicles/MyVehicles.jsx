@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useVehicles } from '../hooks/useVehicles';
-import { useTheme } from '../../context/ThemeContext'; // ✅ ADDED: Theme context
+import { useTheme } from '../../context/ThemeContext'; 
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { toast } from 'react-hot-toast';
 
 const MyVehicles = () => {
   const { user } = useAuth();
-  const { isDark } = useTheme(); // ✅ ADDED: Dark mode state
+  const { isDark } = useTheme(); 
   const navigate = useNavigate();
   const { getMyVehicles, deleteVehicle, updateVehicle, loading } = useVehicles();
   const [vehicles, setVehicles] = useState([]);
@@ -18,7 +18,6 @@ const MyVehicles = () => {
   const [vehicleToDelete, setVehicleToDelete] = useState(null);
   const [filter, setFilter] = useState('all');
 
-  // Dark mode classes
   const bgGradient = isDark 
     ? 'bg-gradient-to-br from-gray-900 to-gray-800' 
     : 'bg-gradient-to-br from-gray-50 to-blue-50';
@@ -216,7 +215,6 @@ const MyVehicles = () => {
       <div className={`min-h-screen ${bgGradient} py-8 transition-colors duration-300`}>
         <div className="container mx-auto px-4">
           <div className="max-w-7xl mx-auto">
-            {/* Header Section */}
             <div className="text-center mb-12">
               <div className="inline-block mb-4">
                 <span className={`${isDark ? 'bg-blue-900/50 text-blue-300' : 'bg-blue-50 text-blue-600'} font-semibold text-sm uppercase tracking-wider px-4 py-2 rounded-full transition-colors duration-300`}>
@@ -231,7 +229,6 @@ const MyVehicles = () => {
               </p>
             </div>
 
-            {/* Stats and Action Bar */}
             <div className={`${cardBg} rounded-2xl shadow-lg p-6 mb-8 transition-colors duration-300`}>
               <div className="flex flex-col lg:flex-row justify-between items-center">
                 <div className="flex items-center space-x-8 mb-4 lg:mb-0">
@@ -261,7 +258,6 @@ const MyVehicles = () => {
               </div>
             </div>
 
-            {/* Filter Section */}
             {vehicles.length > 0 && (
               <div className={`${cardBg} rounded-2xl shadow-lg p-6 mb-8 transition-colors duration-300`}>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -306,7 +302,6 @@ const MyVehicles = () => {
               </div>
             )}
 
-            {/* Vehicles Grid */}
             {filteredVehicles.length === 0 ? (
               <div className={`${cardBg} rounded-2xl shadow-lg p-12 text-center transition-colors duration-300`}>
                 <div className={`w-24 h-24 ${isDark ? 'bg-blue-900/50' : 'bg-blue-100'} rounded-full flex items-center justify-center mx-auto mb-6 transition-colors duration-300`}>
@@ -334,7 +329,6 @@ const MyVehicles = () => {
               </div>
             ) : (
               <>
-                {/* Results Count */}
                 <div className="mb-6 flex justify-between items-center">
                   <p className={`${textMuted} transition-colors duration-300`}>
                     Showing {filteredVehicles.length} of {vehicles.length} vehicle{vehicles.length !== 1 ? 's' : ''}
@@ -356,7 +350,6 @@ const MyVehicles = () => {
                       key={vehicle._id} 
                       className={`${cardBg} rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border ${borderColor}`}
                     >
-                      {/* Vehicle Image */}
                       <div className="relative h-48 overflow-hidden">
                         <img 
                           src={vehicle.coverImage || '/default-vehicle.jpg'} 
@@ -367,7 +360,6 @@ const MyVehicles = () => {
                           }}
                         />
                         
-                        {/* Status Badge */}
                         <div className="absolute top-4 left-4">
                           <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                             vehicle.availability === 'Available' 
@@ -378,9 +370,7 @@ const MyVehicles = () => {
                           </span>
                         </div>
 
-                        {/* Action Buttons */}
                         <div className="absolute top-4 right-4 flex space-x-2">
-                          {/* View Details Button */}
                           <button
                             onClick={() => handleViewDetails(vehicle._id)}
                             className={`${isDark ? 'bg-gray-700/90 text-blue-400 hover:bg-blue-600' : 'bg-white/90 text-blue-600 hover:bg-blue-600 hover:text-white'} backdrop-blur-sm p-2 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-110`}
@@ -392,7 +382,6 @@ const MyVehicles = () => {
                             </svg>
                           </button>
                           
-                          {/* Edit Button */}
                           <button
                             onClick={() => handleUpdateVehicle(vehicle._id)}
                             className={`${isDark ? 'bg-gray-700/90 text-green-400 hover:bg-green-600' : 'bg-white/90 text-green-600 hover:bg-green-600 hover:text-white'} backdrop-blur-sm p-2 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-110`}
@@ -403,7 +392,6 @@ const MyVehicles = () => {
                             </svg>
                           </button>
                           
-                          {/* Delete Button */}
                           <button 
                             onClick={() => handleDeleteClick(vehicle)}
                             disabled={deletingId === vehicle._id || loading}
@@ -420,14 +408,12 @@ const MyVehicles = () => {
                           </button>
                         </div>
 
-                        {/* Price Overlay */}
                         <div className="absolute bottom-4 left-4 bg-black/70 text-white px-3 py-2 rounded-lg backdrop-blur-sm">
                           <span className="font-bold text-lg">${vehicle.pricePerDay || 0}</span>
                           <span className="text-sm opacity-90">/day</span>
                         </div>
                       </div>
 
-                      {/* Vehicle Details */}
                       <div className="p-6">
                         <div className="flex justify-between items-start mb-3">
                           <h3 className={`text-xl font-bold ${textColor} truncate mr-2 transition-colors duration-300`}>
@@ -450,7 +436,6 @@ const MyVehicles = () => {
                           <span className="truncate">{vehicle.location || 'Location not specified'}</span>
                         </div>
 
-                        {/* Vehicle Specifications */}
                         <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
                           <div className={`flex items-center space-x-1 ${textMuted} transition-colors duration-300`}>
                             <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -466,7 +451,6 @@ const MyVehicles = () => {
                           </div>
                         </div>
 
-                        {/* Footer */}
                         <div className={`flex justify-between items-center pt-4 border-t ${isDark ? 'border-gray-700' : 'border-gray-100'} transition-colors duration-300`}>
                           <div className={`text-xs ${textLight} transition-colors duration-300`}>
                             {vehicle.createdAt ? `Added ${new Date(vehicle.createdAt).toLocaleDateString()}` : 'Recently added'}
@@ -493,7 +477,6 @@ const MyVehicles = () => {
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
       {showDeleteModal && vehicleToDelete && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
           <div className={`${cardBg} rounded-2xl shadow-2xl max-w-md w-full p-6 transition-colors duration-300`}>

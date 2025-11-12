@@ -3,10 +3,8 @@ import { FaFacebookF, FaInstagram, FaLinkedinIn, FaMapMarkerAlt, FaPhone, FaEnve
 const Footer = () => {
   return (
     <footer className="bg-gray-900 text-white">
-      {/* Main Footer Content */}
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Company Info */}
           <div className="lg:col-span-1">
             <div className="flex items-center space-x-2 mb-4">
               <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
@@ -22,7 +20,6 @@ const Footer = () => {
                 <FaFacebookF size={16} />
               </a>
               <a href="#" className="bg-gray-800 hover:bg-black text-gray-300 hover:text-white p-3 rounded-full transition-all duration-300 transform hover:scale-110">
-                {/* X (Twitter) Icon */}
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                 </svg>
@@ -36,7 +33,6 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Quick Links */}
           <div>
             <h3 className="text-lg font-semibold text-white mb-6">Quick Links</h3>
             <ul className="space-y-3">
@@ -73,7 +69,6 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Vehicle Categories */}
           <div>
             <h3 className="text-lg font-semibold text-white mb-6">Vehicle Types</h3>
             <ul className="space-y-3">
@@ -110,7 +105,6 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Contact Info */}
           <div>
             <h3 className="text-lg font-semibold text-white mb-6">Contact Info</h3>
             <div className="space-y-4">
@@ -128,7 +122,6 @@ const Footer = () => {
               </div>
             </div>
             
-            {/* Newsletter Signup */}
             <div className="mt-6">
               <h4 className="text-white text-sm font-semibold mb-3">Stay Updated</h4>
               <div className="flex flex-col sm:flex-row gap-2">
@@ -146,7 +139,6 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* Bottom Footer */}
       <div className="border-t border-gray-800">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">

@@ -23,7 +23,6 @@ const BookingModal = ({ vehicle, isOpen, onClose, onConfirm }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-lg">
-        {/* Header */}
         <div className="flex justify-between items-center mb-5">
           <h2 className="text-xl font-bold text-gray-800">
             Book {vehicle.vehicleName}
@@ -48,9 +47,9 @@ const BookingModal = ({ vehicle, isOpen, onClose, onConfirm }) => {
           </button>
         </div>
 
-        {/* Form */}
+     
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Dates */}
+        
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -83,7 +82,7 @@ const BookingModal = ({ vehicle, isOpen, onClose, onConfirm }) => {
             </div>
           </div>
 
-          {/* Notes */}
+        
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Additional Notes
@@ -99,7 +98,7 @@ const BookingModal = ({ vehicle, isOpen, onClose, onConfirm }) => {
             />
           </div>
 
-          {/* Pricing */}
+          
           <div className="bg-gray-50 p-3 rounded-lg">
             <div className="flex justify-between text-sm">
               <span>Price per day:</span>
@@ -107,7 +106,7 @@ const BookingModal = ({ vehicle, isOpen, onClose, onConfirm }) => {
             </div>
           </div>
 
-          {/* Buttons */}
+       
           <div className="flex space-x-3">
             <button
               type="button"

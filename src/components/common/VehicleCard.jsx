@@ -29,7 +29,6 @@ const VehicleCard = ({ vehicle }) => {
           : 'bg-white border-gray-100 hover:border-green-500/20 hover:shadow-[0_0_30px_rgba(34,197,94,0.15)]'
         }`}
     >
-      {/* Image Section */}
       <div className="relative h-48 overflow-hidden">
         <img
           src={coverImage || '/default-vehicle.jpg'}
@@ -38,10 +37,8 @@ const VehicleCard = ({ vehicle }) => {
           onError={(e) => (e.target.src = '/default-vehicle.jpg')}
         />
 
-        {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
 
-        {/* Availability Badge */}
         <div className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm border
           ${isAvailable
             ? 'bg-green-600/90 text-white border-green-400/30'
@@ -50,7 +47,6 @@ const VehicleCard = ({ vehicle }) => {
           {isAvailable ? 'Available' : 'Booked'}
         </div>
 
-        {/* Rating Badge */}
         {rating && (
           <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-semibold flex items-center space-x-1 border border-white/10">
             <FaStar className="text-yellow-400" size={10} />
@@ -58,7 +54,6 @@ const VehicleCard = ({ vehicle }) => {
           </div>
         )}
 
-        {/* Price Tag */}
         <div className="absolute bottom-3 left-3 bg-black/80 backdrop-blur-sm text-white px-3 py-2 rounded-xl border border-white/10">
           <div className="flex items-center space-x-1">
             <FaDollarSign className="text-green-400" size={12} />
@@ -68,9 +63,7 @@ const VehicleCard = ({ vehicle }) => {
         </div>
       </div>
 
-      {/* Content */}
       <div className="p-6">
-        {/* Header */}
         <div className="flex justify-between items-start mb-3">
           <h3 className={`text-xl font-bold line-clamp-1 flex-1 mr-2 transition-colors duration-200
             ${isDark 
@@ -88,14 +81,12 @@ const VehicleCard = ({ vehicle }) => {
           </span>
         </div>
 
-        {/* Location */}
         <div className={`flex items-center mb-4 text-sm 
           ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
           <FaMapMarkerAlt className="text-blue-500 mr-2 flex-shrink-0" size={14} />
           <span className="truncate" title={location}>{location}</span>
         </div>
 
-        {/* Features Grid */}
         <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
           {fuelType && (
             <div className={`${isDark ? 'text-gray-300' : 'text-gray-600'} flex items-center`}>
@@ -121,7 +112,6 @@ const VehicleCard = ({ vehicle }) => {
           )}
         </div>
 
-        {/* Bottom Section */}
         <div className={`pt-4 border-t ${isDark ? 'border-gray-700' : 'border-gray-100'}`}>
           <div className="flex justify-between items-center">
             <span className={`text-sm font-medium px-3 py-1 rounded-full border

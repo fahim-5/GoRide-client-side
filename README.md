@@ -51,7 +51,6 @@ cd goride
 cd client
 npm install
 cp .env.example .env
-# Add your Firebase config to .env
 npm run dev
 ```
 
@@ -60,7 +59,6 @@ npm run dev
 cd server
 npm install
 cp .env.example .env
-# Add MongoDB and Firebase Admin credentials
 npm start
 ```
 

@@ -5,13 +5,12 @@ import { useVehicles } from '../hooks/useVehicles';
 import VehicleForm from '../../components/forms/VehicleForm';
 import { toast } from 'react-hot-toast';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
-import { useTheme } from '../../context/ThemeContext'; // 🟢 Import Theme Context
+import { useTheme } from '../../context/ThemeContext'; 
 
 const AddVehicle = () => {
   const { user } = useAuth();
   const { createVehicle, loading, error, clearError } = useVehicles();
   const navigate = useNavigate();
-  // 🟢 Use the isDark flag from ThemeContext
   const { isDark } = useTheme(); 
 
   useEffect(() => {
@@ -36,7 +35,6 @@ const AddVehicle = () => {
     navigate('/my-vehicles');
   };
 
-  // --- Dynamic Class Variables based on isDark ---
   const bgClass = isDark
     ? 'min-h-screen bg-gradient-to-br from-gray-900 to-gray-800'
     : 'min-h-screen bg-gradient-to-br from-gray-50 to-blue-50';
@@ -47,9 +45,7 @@ const AddVehicle = () => {
 
   const textClass = isDark ? 'text-white' : 'text-gray-800';
   const subTextClass = isDark ? 'text-gray-400' : 'text-gray-600';
-  // ------------------------------------------------
 
-  // --- Authentication Required Screen ---
   if (!user) {
     return (
       <div className={`${bgClass} flex items-center justify-center transition-colors duration-300`}>
@@ -74,7 +70,6 @@ const AddVehicle = () => {
     );
   }
 
-  // --- Loading Screen ---
   if (loading) {
     return (
       <div className={`${bgClass} flex items-center justify-center transition-colors duration-300`}>
@@ -83,14 +78,11 @@ const AddVehicle = () => {
     );
   }
 
-  // --- Main Content ---
   return (
     <div className={`${bgClass} py-8 transition-colors duration-300`}>
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
-          {/* Main Content Card */}
           <div className={`shadow-xl overflow-hidden border transition-colors duration-300 ${cardClass}`}>
-            {/* Header Bar */}
             <div className="bg-gradient-to-r from-green-600 to-green-700 dark:from-green-700 dark:to-green-800 px-6 py-5">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center space-x-3 mb-3 sm:mb-0">
@@ -117,16 +109,13 @@ const AddVehicle = () => {
               </div>
             </div>
 
-            {/* Form Section */}
             <div className="p-6">
-              {/* Note: VehicleForm component needs to be dark mode enabled internally as well */}
               <VehicleForm 
                 onSubmit={handleSubmit}
                 loading={loading}
               />
             </div>
 
-            {/* Quick Tips Footer */}
             <div className={`border-t bg-gray-50 px-6 py-5 transition-colors duration-300 ${
               isDark ? 'border-gray-700 bg-gray-700' : 'border-gray-100 bg-gray-50'
             }`}>
@@ -161,9 +150,7 @@ const AddVehicle = () => {
             </div>
           </div>
 
-          {/* Benefits Section */}
           <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Benefit 1: Earn Money */}
             <div className={`rounded-xl p-6 border transition-colors duration-300 ${
               isDark ? 'bg-blue-900/30 border-blue-800' : 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200'
             }`}>
@@ -178,7 +165,6 @@ const AddVehicle = () => {
               </p>
             </div>
 
-            {/* Benefit 2: Fully Insured */}
             <div className={`rounded-xl p-6 border transition-colors duration-300 ${
               isDark ? 'bg-green-900/30 border-green-800' : 'bg-gradient-to-br from-green-50 to-green-100 border-green-200'
             }`}>
@@ -193,7 +179,6 @@ const AddVehicle = () => {
               </p>
             </div>
 
-            {/* Benefit 3: Trusted Community */}
             <div className={`rounded-xl p-6 border transition-colors duration-300 ${
               isDark ? 'bg-purple-900/30 border-purple-800' : 'bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'
             }`}>
@@ -209,7 +194,6 @@ const AddVehicle = () => {
             </div>
           </div>
 
-          {/* Support Section */}
           <div className={`mt-8 p-6 text-center border transition-colors duration-300 ${cardClass}`}>
             <h3 className={`font-semibold mb-2 ${textClass}`}>Need Help Listing Your Vehicle?</h3>
             <p className={`text-sm mb-4 ${subTextClass}`}>

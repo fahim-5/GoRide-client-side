@@ -6,10 +6,8 @@ const CustomToast = ({ message, type = 'success', onClose }) => {
     <div
       className={`${bgColor} ${textColor} px-6 py-4 rounded-lg shadow-lg max-w-md mx-auto flex items-center justify-between animate-fade-in`}
     >
-      {/* Message */}
       <span className="font-medium">{message}</span>
 
-      {/* Close Button */}
       <button
         onClick={onClose}
         className="ml-4 text-white hover:text-gray-200 transition-colors"

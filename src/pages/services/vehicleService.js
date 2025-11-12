@@ -20,7 +20,6 @@ export const getVehicleById = async (id) => {
   }
 };
 
-// Keep for backward compatibility
 export const getVehicle = async (id) => {
   try {
     const response = await API.get(`/vehicles/${id}`);
@@ -78,7 +77,6 @@ export const updateVehicle = async (id, vehicleData) => {
     return response.data;
   } catch (error) {
     console.error('❌ Error in updateVehicle service:', error);
-    // Enhance error message for better debugging
     if (error.response) {
       const enhancedError = new Error(error.response.data.message || 'Failed to update vehicle');
       enhancedError.status = error.response.status;

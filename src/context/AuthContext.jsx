@@ -41,7 +41,6 @@ export const AuthProvider = ({ children }) => {
       displayName: name,
       photoURL: photoURL
     });
-    // Update local user state
     setUser({ ...userCredential.user });
     return userCredential.user;
   };

@@ -5,12 +5,12 @@ import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
 import { useVehicles } from '../hooks/useVehicles';
-import { useTheme } from '../../context/ThemeContext'; // ✅ ADDED: Theme context
+import { useTheme } from '../../context/ThemeContext'; 
 
 const UpdateVehicle = () => {
   const { id } = useParams();
   const { user } = useAuth();
-  const { isDark } = useTheme(); // ✅ ADDED: Dark mode state
+  const { isDark } = useTheme(); 
   const { getVehicleById, updateVehicle, loading } = useVehicles();
   const navigate = useNavigate();
   const [vehicle, setVehicle] = useState(null);
@@ -88,7 +88,6 @@ const UpdateVehicle = () => {
     navigate('/my-vehicles');
   };
 
-  // Dark mode background classes
   const bgGradient = isDark 
     ? 'bg-gradient-to-br from-gray-900 to-gray-800' 
     : 'bg-gradient-to-br from-gray-50 to-blue-50';
@@ -166,9 +165,7 @@ const UpdateVehicle = () => {
     <div className={`min-h-screen ${bgGradient} py-8 transition-colors duration-300`}>
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
-          {/* Main Content Card */}
           <div className={`${cardBg} rounded-2xl shadow-xl overflow-hidden transition-colors duration-300`}>
-            {/* Header Bar */}
             <div className={`${headerBg} px-6 py-4 transition-colors duration-300`}>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center space-x-3 mb-3 sm:mb-0">
@@ -203,7 +200,6 @@ const UpdateVehicle = () => {
               </div>
             </div>
 
-            {/* Error Message */}
             {updateError && (
               <div className="mx-6 mt-6">
                 <div className={`${isDark ? 'bg-red-900/30 border-red-700' : 'bg-red-50 border-red-200'} border rounded-xl p-4 transition-colors duration-300`}>
@@ -222,7 +218,6 @@ const UpdateVehicle = () => {
               </div>
             )}
 
-            {/* Vehicle Form */}
             <div className="p-6">
               <VehicleForm 
                 vehicle={vehicle}
@@ -232,7 +227,6 @@ const UpdateVehicle = () => {
               />
             </div>
 
-            {/* Quick Stats Footer */}
             {vehicle && (
               <div className={`border-t ${isDark ? 'border-gray-700 bg-gray-900/50' : 'border-gray-100 bg-gray-50'} px-6 py-4 transition-colors duration-300`}>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
@@ -267,7 +261,6 @@ const UpdateVehicle = () => {
             )}
           </div>
 
-          {/* Help Section */}
           <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className={`${cardBg} rounded-xl p-6 border ${borderColor} transition-colors duration-300`}>
               <div className={`w-10 h-10 ${isDark ? 'bg-blue-900/50' : 'bg-blue-100'} rounded-lg flex items-center justify-center mb-3 transition-colors duration-300`}>

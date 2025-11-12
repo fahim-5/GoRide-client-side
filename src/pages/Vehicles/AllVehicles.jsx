@@ -21,7 +21,6 @@ const AllVehicles = () => {
   const [filters, setFilters] = useState({});
   const [sortBy, setSortBy] = useState('');
 
-  // Dynamic classes for dark mode
   const bgClass = isDark
     ? 'min-h-screen bg-gradient-to-br from-gray-900 to-gray-800'
     : 'min-h-screen bg-gradient-to-br from-gray-50 to-blue-50';
@@ -33,25 +32,20 @@ const AllVehicles = () => {
   const textPrimary = isDark ? 'text-white' : 'text-gray-900';
   const textSecondary = isDark ? 'text-gray-300' : 'text-gray-600';
 
-  // Fetch vehicles with filters and sorting
   const fetchVehicles = useCallback(async (filterParams = {}, sortParam = '') => {
     try {
-      // Build query parameters
       const queryParams = {};
       
-      // Add filters
       if (filterParams.category) queryParams.category = filterParams.category;
       if (filterParams.location) queryParams.location = filterParams.location;
       if (filterParams.availability) queryParams.availability = filterParams.availability;
       
-      // Handle price range
       if (filterParams.priceRange) {
         const [min, max] = filterParams.priceRange.split('-');
         if (min) queryParams.minPrice = min;
         if (max && max !== '+') queryParams.maxPrice = max;
       }
       
-      // Add sorting
       if (sortParam) {
         queryParams.sort = sortParam;
       }
@@ -67,34 +61,28 @@ const AllVehicles = () => {
     }
   }, [getAllVehicles]);
 
-  // Initial load and when filters/sort change
   useEffect(() => {
     fetchVehicles(filters, sortBy);
   }, [fetchVehicles, filters, sortBy]);
 
-  // Handle filter changes from SearchFilter
   const handleFilter = (newFilters) => {
     console.log('🎯 New filters applied:', newFilters);
     setFilters(newFilters);
   };
 
-  // Handle sort changes from SearchFilter
   const handleSort = (sortOption) => {
     console.log('🎯 New sort applied:', sortOption);
     setSortBy(sortOption);
   };
 
-  // Clear all filters
   const handleClearFilters = () => {
     console.log('🔄 Clearing all filters');
     setFilters({});
     setSortBy('');
   };
 
-  // Check if any filters are active
   const hasActiveFilters = Object.values(filters).some(value => value !== '') || sortBy !== '';
 
-  // Book vehicle handler
   const handleBookVehicle = async (vehicleId) => {
     if (!user) {
       toast.error('Please login to book a vehicle');
@@ -107,7 +95,7 @@ const AllVehicles = () => {
       
       const startDate = new Date();
       const endDate = new Date();
-      endDate.setDate(endDate.getDate() + 3); // 3-day booking
+      endDate.setDate(endDate.getDate() + 3); 
 
       const bookingData = {
         vehicleId: vehicleId,
@@ -121,7 +109,6 @@ const AllVehicles = () => {
       await createBooking(bookingData);
       toast.success('Vehicle booked successfully! 🎉');
       
-      // Refresh vehicles to update availability
       fetchVehicles(filters, sortBy);
       
     } catch (error) {
@@ -132,16 +119,13 @@ const AllVehicles = () => {
     }
   };
 
-  // View details handler
   const handleViewDetails = (vehicleId) => {
     navigate(`/vehicle/${vehicleId}`);
   };
 
-  // Stats calculation
   const totalVehicles = vehicles.length;
   const availableVehicles = vehicles.filter(v => v.availability === 'Available').length;
 
-  // Loading state
   if (loading) {
     return (
       <div className={`${bgClass} flex items-center justify-center min-h-screen transition-colors duration-300`}>
@@ -154,7 +138,6 @@ const AllVehicles = () => {
     <div className={`${bgClass} py-8 transition-colors duration-300`}>
       <div className="container mx-auto px-4">
         <div className="max-w-7xl mx-auto">
-          {/* Header Section */}
           <div className="text-center mb-12">
             <div className="inline-block mb-4">
               <span className={`font-semibold text-sm uppercase tracking-wider px-4 py-2 rounded-full transition-colors duration-300 ${
@@ -171,7 +154,6 @@ const AllVehicles = () => {
             </p>
           </div>
 
-          {/* Stats Bar */}
           <div className={`rounded-2xl p-6 mb-8 border transition-colors duration-300 ${cardClass}`}>
             <div className="flex flex-col lg:flex-row justify-between items-center">
               <div className="flex items-center space-x-8 mb-4 lg:mb-0">
@@ -227,7 +209,6 @@ const AllVehicles = () => {
             </div>
           </div>
 
-          {/* Search and Filter Section */}
           <div className="mb-8">
             <SearchFilter 
               onFilter={handleFilter} 
@@ -236,7 +217,6 @@ const AllVehicles = () => {
             />
           </div>
 
-          {/* Vehicles Grid */}
           {vehicles.length === 0 ? (
             <div className={`rounded-2xl p-12 text-center border transition-colors duration-300 ${cardClass}`}>
               <div className={`w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 transition-colors duration-300 ${
@@ -279,12 +259,10 @@ const AllVehicles = () => {
                 >
                   <VehicleCard vehicle={vehicle} />
                   
-                  {/* Action Buttons */}
                   <div className={`p-6 border-t transition-colors duration-300 ${
                     isDark ? 'border-gray-700' : 'border-gray-100'
                   }`}>
                     <div className="flex flex-col space-y-3">
-                      {/* View Details Button */}
                       <button
                         onClick={() => handleViewDetails(vehicle._id)}
                         className={`w-full py-3 rounded-xl transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center space-x-2 ${
@@ -300,7 +278,6 @@ const AllVehicles = () => {
                         <span>View Details</span>
                       </button>
 
-                      {/* Book Button */}
                       {vehicle.availability === 'Available' ? (
                         <button
                           onClick={() => handleBookVehicle(vehicle._id)}
