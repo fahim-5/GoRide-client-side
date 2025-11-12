@@ -1,18 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useBookings } from '../hooks/useBookings';
-import { useTheme } from '../../context/ThemeContext'; // ✅ ADDED: Theme context
+import { useTheme } from '../../context/ThemeContext';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { toast } from 'react-hot-toast';
 
 const MyBookings = () => {
   const { user } = useAuth();
-  const { isDark } = useTheme(); // ✅ ADDED: Dark mode state
+  const { isDark } = useTheme();
   const { getMyBookings, cancelBooking, loading, error, clearError } = useBookings();
   const [bookings, setBookings] = useState([]);
   const [cancellingId, setCancellingId] = useState(null);
   const [fetchError, setFetchError] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
+  const [lastFetchTime, setLastFetchTime] = useState(0);
 
   // Dark mode classes
   const bgGradient = isDark 
@@ -26,10 +27,20 @@ const MyBookings = () => {
   const borderColor = isDark ? 'border-gray-700' : 'border-gray-200';
   const hoverBg = isDark ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50';
 
-  const fetchBookingsData = async (isRetry = false) => {
+  // Debounced fetch function
+  const fetchBookingsData = useCallback(async (isRetry = false) => {
+    // Prevent too frequent requests (min 2 seconds between requests)
+    const now = Date.now();
+    if (now - lastFetchTime < 2000 && !isRetry) {
+      console.log('⏳ Too soon since last fetch, skipping...');
+      return;
+    }
+
     if (user && user.email) {
       try {
         console.log('🔄 Fetching bookings for user:', user.email);
+        setLastFetchTime(now);
+        
         if (!isRetry) {
           setFetchError(null);
           clearError();
@@ -60,44 +71,74 @@ const MyBookings = () => {
         const errorMsg = error.message || 'Failed to load bookings';
         setFetchError(errorMsg);
         
-        if (error.message.includes('Too many requests')) {
+        if (error.message.includes('429') || error.message.includes('Too many requests')) {
           toast.error('Please wait a moment before trying again');
+        } else if (error.message.includes('404')) {
+          toast.error('Bookings not found');
+          setBookings([]); // Set empty array for 404
+        } else if (error.message.includes('Network error')) {
+          toast.error('Network connection failed');
         } else {
           toast.error(errorMsg);
         }
         
-        setBookings([]);
+        // Don't clear bookings on error to avoid flickering
+        if (!isRetry) {
+          setBookings([]);
+        }
       }
     }
-  };
+  }, [user, getMyBookings, clearError, lastFetchTime]);
 
   useEffect(() => {
     fetchBookingsData();
-  }, [user]);
+  }, [fetchBookingsData]);
 
   const handleRetry = () => {
+    if (retryCount >= 3) {
+      toast.error('Too many retries. Please refresh the page.');
+      return;
+    }
     setRetryCount(prev => prev + 1);
     fetchBookingsData(true);
   };
 
   const handleCancelBooking = async (bookingId) => {
-    if (!window.confirm('Are you sure you want to cancel this booking?')) {
+    if (!window.confirm('Are you sure you want to cancel this booking? This action cannot be undone.')) {
       return;
     }
 
     try {
       setCancellingId(bookingId);
+      console.log('🔄 Starting cancellation for booking:', bookingId);
+      
       await cancelBooking(bookingId);
       toast.success('Booking cancelled successfully');
       
-      setBookings(prev => prev.filter(booking => booking._id !== bookingId));
+      // Update local state optimistically
+      setBookings(prev => prev.map(booking => 
+        booking._id === bookingId 
+          ? { ...booking, status: 'cancelled' }
+          : booking
+      ));
+      
     } catch (error) {
-      console.error('Cancel booking error:', error);
-      if (error.message.includes('Too many requests')) {
+      console.error('❌ Cancel booking error:', error);
+      
+      if (error.message.includes('429') || error.message.includes('Too many requests')) {
         toast.error('Please wait a moment before trying again');
+      } else if (error.message.includes('404')) {
+        toast.error('Booking not found or already cancelled');
+        // Remove from local state if not found
+        setBookings(prev => prev.filter(booking => booking._id !== bookingId));
+      } else if (error.message.includes('Network error')) {
+        toast.error('Network error: Please check your connection');
       } else {
         toast.error(error.message || 'Failed to cancel booking');
       }
+      
+      // Refresh data to ensure consistency
+      fetchBookingsData(true);
     } finally {
       setCancellingId(null);
     }
@@ -136,8 +177,19 @@ const MyBookings = () => {
     }
   };
 
+  // Check if booking can be cancelled
+  const canCancelBooking = (booking) => {
+    if (booking.status === 'cancelled') return false;
+    
+    const startDate = booking.startDate ? new Date(booking.startDate) : new Date();
+    const now = new Date();
+    
+    // Can cancel if booking starts in more than 24 hours
+    return startDate.getTime() - now.getTime() > 24 * 60 * 60 * 1000;
+  };
+
   // Show loading state
-  if (loading && bookings.length === 0) {
+  if (loading && bookings.length === 0 && !fetchError) {
     return (
       <div className={`min-h-screen ${bgGradient} flex items-center justify-center transition-colors duration-300`}>
         <LoadingSpinner />
@@ -146,7 +198,7 @@ const MyBookings = () => {
   }
 
   // Show rate limit error state
-  if (fetchError && fetchError.includes('Too many requests')) {
+  if (fetchError && (fetchError.includes('429') || fetchError.includes('Too many requests'))) {
     return (
       <div className={`min-h-screen ${bgGradient} flex items-center justify-center transition-colors duration-300`}>
         <div className={`${cardBg} rounded-2xl shadow-lg p-8 max-w-md mx-4 transition-colors duration-300`}>
@@ -158,14 +210,20 @@ const MyBookings = () => {
           <h3 className={`text-xl font-bold ${textColor} mb-2 transition-colors duration-300`}>Too Many Requests</h3>
           <p className={`${textMuted} mb-4 transition-colors duration-300`}>Please wait a moment before trying again.</p>
           <p className={`text-sm ${textLight} mb-6 transition-colors duration-300`}>
-            This helps prevent overloading the server.
+            {retryCount >= 3 ? 'Maximum retries reached. Please refresh the page.' : 'This helps prevent overloading the server.'}
           </p>
           <button 
             onClick={handleRetry}
             disabled={retryCount >= 3}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full"
           >
             {retryCount >= 3 ? 'Too many retries' : 'Try Again'}
+          </button>
+          <button 
+            onClick={() => window.location.reload()}
+            className="mt-3 bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors w-full"
+          >
+            Refresh Page
           </button>
         </div>
       </div>
@@ -173,7 +231,7 @@ const MyBookings = () => {
   }
 
   // Show other error state
-  if (fetchError && !fetchError.includes('Too many requests')) {
+  if (fetchError && !fetchError.includes('429') && !fetchError.includes('Too many requests')) {
     return (
       <div className={`min-h-screen ${bgGradient} flex items-center justify-center transition-colors duration-300`}>
         <div className={`${cardBg} rounded-2xl shadow-lg p-8 max-w-md mx-4 transition-colors duration-300`}>
@@ -184,12 +242,21 @@ const MyBookings = () => {
           </div>
           <h3 className={`text-xl font-bold ${textColor} mb-2 transition-colors duration-300`}>Error Loading Bookings</h3>
           <p className={`${textMuted} mb-4 transition-colors duration-300`}>{fetchError}</p>
-          <button 
-            onClick={handleRetry}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Try Again
-          </button>
+          <div className="flex space-x-3">
+            <button 
+              onClick={handleRetry}
+              disabled={retryCount >= 3}
+              className="flex-1 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {retryCount >= 3 ? 'Too many retries' : 'Try Again'}
+            </button>
+            <button 
+              onClick={() => window.location.reload()}
+              className="flex-1 bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors"
+            >
+              Refresh
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -263,7 +330,7 @@ const MyBookings = () => {
               </div>
               <h3 className={`text-2xl font-bold ${textColor} mb-3 transition-colors duration-300`}>No Bookings Yet</h3>
               <p className={`${textMuted} mb-8 max-w-md mx-auto transition-colors duration-300`}>
-                You haven't made any bookings yet. Start by exploring our vehicles and book your perfect ride.
+                {fetchError ? 'Unable to load bookings. Please try again.' : 'You haven\'t made any bookings yet. Start by exploring our vehicles and book your perfect ride.'}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a 
@@ -285,6 +352,7 @@ const MyBookings = () => {
               {bookings.map((booking) => {
                 const vehicle = getVehicleData(booking);
                 const dates = getBookingDates(booking);
+                const canCancel = canCancelBooking(booking);
                 
                 return (
                   <div key={booking._id} className={`${cardBg} rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border ${borderColor} ${hoverBg}`}>
@@ -383,45 +451,49 @@ const MyBookings = () => {
                       
                       {/* Action Buttons */}
                       <div className="mt-4 lg:mt-0 lg:ml-6 lg:self-start flex flex-col space-y-3">
-                        {booking.status === 'confirmed' && (
-                          <>
-                            <button 
-                              onClick={() => handleCancelBooking(booking._id)}
-                              disabled={cancellingId === booking._id}
-                              className="bg-red-500 text-white px-6 py-3 rounded-xl hover:bg-red-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-lg hover:shadow-xl flex items-center justify-center space-x-2 min-w-[140px]"
-                            >
-                              {cancellingId === booking._id ? (
-                                <>
-                                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                  <span>Cancelling...</span>
-                                </>
-                              ) : (
-                                <>
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                  </svg>
-                                  <span>Cancel Booking</span>
-                                </>
-                              )}
-                            </button>
-                            
-                            {/* Check if booking is upcoming or active */}
-                            {new Date(booking.startDate) > new Date() && (
-                              <div className={`text-xs ${isDark ? 'text-green-400 bg-green-900/30' : 'text-green-600 bg-green-50'} px-3 py-1 rounded-lg text-center border ${isDark ? 'border-green-700/50' : 'border-green-200'} transition-colors duration-300`}>
-                                🟢 Upcoming
-                              </div>
+                        {booking.status === 'confirmed' && canCancel && (
+                          <button 
+                            onClick={() => handleCancelBooking(booking._id)}
+                            disabled={cancellingId === booking._id}
+                            className="bg-red-500 text-white px-6 py-3 rounded-xl hover:bg-red-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-lg hover:shadow-xl flex items-center justify-center space-x-2 min-w-[140px]"
+                          >
+                            {cancellingId === booking._id ? (
+                              <>
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                <span>Cancelling...</span>
+                              </>
+                            ) : (
+                              <>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                                <span>Cancel Booking</span>
+                              </>
                             )}
-                            {new Date(booking.startDate) <= new Date() && new Date(booking.endDate) >= new Date() && (
-                              <div className={`text-xs ${isDark ? 'text-blue-400 bg-blue-900/30' : 'text-blue-600 bg-blue-50'} px-3 py-1 rounded-lg text-center border ${isDark ? 'border-blue-700/50' : 'border-blue-200'} transition-colors duration-300`}>
-                                🔵 Active
-                              </div>
-                            )}
-                            {new Date(booking.endDate) < new Date() && (
-                              <div className={`text-xs ${isDark ? 'text-gray-400 bg-gray-700' : 'text-gray-600 bg-gray-50'} px-3 py-1 rounded-lg text-center border ${isDark ? 'border-gray-600' : 'border-gray-200'} transition-colors duration-300`}>
-                                ⚫ Completed
-                              </div>
-                            )}
-                          </>
+                          </button>
+                        )}
+
+                        {booking.status === 'confirmed' && !canCancel && (
+                          <div className={`text-xs ${isDark ? 'text-gray-400 bg-gray-700' : 'text-gray-600 bg-gray-50'} px-3 py-2 rounded-lg text-center border ${isDark ? 'border-gray-600' : 'border-gray-200'} transition-colors duration-300`}>
+                            Cannot cancel within 24 hours of start date
+                          </div>
+                        )}
+                        
+                        {/* Check if booking is upcoming or active */}
+                        {new Date(booking.startDate) > new Date() && (
+                          <div className={`text-xs ${isDark ? 'text-green-400 bg-green-900/30' : 'text-green-600 bg-green-50'} px-3 py-1 rounded-lg text-center border ${isDark ? 'border-green-700/50' : 'border-green-200'} transition-colors duration-300`}>
+                            🟢 Upcoming
+                          </div>
+                        )}
+                        {new Date(booking.startDate) <= new Date() && new Date(booking.endDate) >= new Date() && (
+                          <div className={`text-xs ${isDark ? 'text-blue-400 bg-blue-900/30' : 'text-blue-600 bg-blue-50'} px-3 py-1 rounded-lg text-center border ${isDark ? 'border-blue-700/50' : 'border-blue-200'} transition-colors duration-300`}>
+                            🔵 Active
+                          </div>
+                        )}
+                        {new Date(booking.endDate) < new Date() && (
+                          <div className={`text-xs ${isDark ? 'text-gray-400 bg-gray-700' : 'text-gray-600 bg-gray-50'} px-3 py-1 rounded-lg text-center border ${isDark ? 'border-gray-600' : 'border-gray-200'} transition-colors duration-300`}>
+                            ⚫ Completed
+                          </div>
                         )}
                         
                         {booking.status === 'cancelled' && (

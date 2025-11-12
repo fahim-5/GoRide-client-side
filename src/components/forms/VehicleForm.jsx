@@ -14,10 +14,7 @@ const VehicleForm = ({ vehicle, onSubmit, loading, isUpdate = false }) => {
     availability: 'Available',
     description: '',
     coverImage: '',
-    userEmail: '',
-    categories: '',
-    fuelType: '',
-    seats: ''
+    userEmail: ''
   });
   const [errors, setErrors] = useState({});
   const [imageError, setImageError] = useState(false);
@@ -34,10 +31,7 @@ const VehicleForm = ({ vehicle, onSubmit, loading, isUpdate = false }) => {
         availability: vehicle.availability || 'Available',
         description: vehicle.description || '',
         coverImage: vehicle.coverImage || '',
-        userEmail: vehicle.userEmail || '',
-        categories: vehicle.categories || '',
-        fuelType: vehicle.fuelType || '',
-        seats: vehicle.seats || ''
+        userEmail: vehicle.userEmail || ''
       });
     } else if (user) {
       // For new vehicle - set user email and name
@@ -75,10 +69,7 @@ const VehicleForm = ({ vehicle, onSubmit, loading, isUpdate = false }) => {
     if (!formData.location.trim()) newErrors.location = 'Location is required';
     if (!formData.description.trim()) newErrors.description = 'Description is required';
     if (!formData.coverImage.trim()) newErrors.coverImage = 'Cover image URL is required';
-    if (!formData.categories) newErrors.categories = 'Vehicle type is required';
     if (!formData.userEmail) newErrors.userEmail = 'Email is required';
-    if (!formData.fuelType) newErrors.fuelType = 'Fuel type is required';
-    if (!formData.seats || formData.seats < 1) newErrors.seats = 'Valid number of seats is required';
     
     // Validate URL format
     if (formData.coverImage.trim()) {
@@ -100,7 +91,7 @@ const VehicleForm = ({ vehicle, onSubmit, loading, isUpdate = false }) => {
       return;
     }
     
-    // Prepare data for submission
+    // Prepare data for submission - only include fields that exist in the schema
     const submitData = {
       vehicleName: formData.vehicleName.trim(),
       owner: formData.owner.trim(),
@@ -110,11 +101,10 @@ const VehicleForm = ({ vehicle, onSubmit, loading, isUpdate = false }) => {
       availability: formData.availability,
       description: formData.description.trim(),
       coverImage: formData.coverImage.trim(),
-      categories: formData.categories,
-      fuelType: formData.fuelType,
-      seats: Number(formData.seats),
+      userEmail: formData.userEmail
     };
     
+    console.log('Submitting vehicle data:', submitData); // For debugging
     onSubmit(submitData);
   };
 
@@ -200,7 +190,7 @@ const VehicleForm = ({ vehicle, onSubmit, loading, isUpdate = false }) => {
             Specifications
           </h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${
                 isDark ? 'text-gray-300' : 'text-gray-700'
@@ -224,77 +214,10 @@ const VehicleForm = ({ vehicle, onSubmit, loading, isUpdate = false }) => {
                 <option value="SUV">SUV</option>
                 <option value="Electric">Electric</option>
                 <option value="Van">Van</option>
-                <option value="Coupe">Coupe</option>
-                <option value="Convertible">Convertible</option>
               </select>
               {errors.category && <p className="text-red-500 text-sm mt-2">{errors.category}</p>}
             </div>
 
-            <div>
-              <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${
-                isDark ? 'text-gray-300' : 'text-gray-700'
-              }`}>
-                Fuel Type *
-              </label>
-              <select
-                name="fuelType"
-                value={formData.fuelType}
-                onChange={handleChange}
-                className={`w-full px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300 ${
-                  errors.fuelType 
-                    ? 'border-red-500' 
-                    : isDark
-                      ? 'border-gray-600 bg-gray-700 text-white'
-                      : 'border-gray-300 text-gray-900'
-                } border`}
-              >
-                <option value="">Select Fuel Type</option>
-                <option value="Gasoline">Gasoline</option>
-                <option value="Diesel">Diesel</option>
-                <option value="Electric">Electric</option>
-                <option value="Hybrid">Hybrid</option>
-              </select>
-              {errors.fuelType && <p className="text-red-500 text-sm mt-2">{errors.fuelType}</p>}
-            </div>
-
-            <div>
-              <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${
-                isDark ? 'text-gray-300' : 'text-gray-700'
-              }`}>
-                Number of Seats *
-              </label>
-              <input
-                type="number"
-                name="seats"
-                value={formData.seats}
-                onChange={handleChange}
-                className={`w-full px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300 ${
-                  errors.seats 
-                    ? 'border-red-500' 
-                    : isDark
-                      ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400'
-                      : 'border-gray-300 text-gray-900 placeholder-gray-500'
-                } border`}
-                placeholder="e.g., 5"
-                min="1"
-                max="20"
-              />
-              {errors.seats && <p className="text-red-500 text-sm mt-2">{errors.seats}</p>}
-            </div>
-          </div>
-        </div>
-
-        {/* Pricing & Location */}
-        <div className={`p-6 rounded-xl transition-colors duration-300 ${
-          isDark ? 'bg-gray-700/50' : 'bg-gray-50'
-        }`}>
-          <h3 className={`text-lg font-semibold mb-4 transition-colors duration-300 ${
-            isDark ? 'text-white' : 'text-gray-800'
-          }`}>
-            Pricing & Location
-          </h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${
                 isDark ? 'text-gray-300' : 'text-gray-700'
@@ -319,7 +242,20 @@ const VehicleForm = ({ vehicle, onSubmit, loading, isUpdate = false }) => {
               />
               {errors.pricePerDay && <p className="text-red-500 text-sm mt-2">{errors.pricePerDay}</p>}
             </div>
+          </div>
+        </div>
 
+        {/* Pricing & Location */}
+        <div className={`p-6 rounded-xl transition-colors duration-300 ${
+          isDark ? 'bg-gray-700/50' : 'bg-gray-50'
+        }`}>
+          <h3 className={`text-lg font-semibold mb-4 transition-colors duration-300 ${
+            isDark ? 'text-white' : 'text-gray-800'
+          }`}>
+            Pricing & Location
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${
                 isDark ? 'text-gray-300' : 'text-gray-700'
@@ -341,7 +277,7 @@ const VehicleForm = ({ vehicle, onSubmit, loading, isUpdate = false }) => {
               </select>
             </div>
 
-            <div className="md:col-span-2">
+            <div>
               <label className={`block text-sm font-medium mb-2 transition-colors duration-300 ${
                 isDark ? 'text-gray-300' : 'text-gray-700'
               }`}>

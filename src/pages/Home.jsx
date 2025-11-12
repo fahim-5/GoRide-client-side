@@ -23,31 +23,39 @@ const AnimatedCounter = ({ value }) => {
 };
 
 // Date-fns Date Badge
+// Simplified and Robust DateBadge Component
 const DateBadge = ({ createdAt }) => {
-  if (!createdAt) {
-    return (
-      <div className="absolute top-4 left-4 z-10 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
-        NEW
-      </div>
-    );
-  }
-  
-  const date = new Date(createdAt);
-  let badgeConfig = { text: 'NEW', color: 'bg-green-500' };
-  
-  if (isToday(date)) {
-    badgeConfig = { text: 'TODAY', color: 'bg-red-500' };
-  } else if (isThisWeek(date)) {
-    badgeConfig = { text: 'THIS WEEK', color: 'bg-orange-500' };
-  } else {
-    badgeConfig = { 
-      text: formatDistanceToNow(date, { addSuffix: true }), 
-      color: 'bg-blue-500' 
-    };
-  }
+  const getDateStatus = (dateString) => {
+    if (!dateString) return { text: 'NEW', color: 'bg-green-500' };
+
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffTime = Math.abs(now - date);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays === 0) {
+        return { text: 'TODAY', color: 'bg-red-500' };
+      } else if (diffDays <= 7) {
+        return { text: 'THIS WEEK', color: 'bg-orange-500' };
+      } else if (diffDays <= 30) {
+        return { text: 'RECENT', color: 'bg-blue-500' };
+      } else {
+        return { 
+          text: `${diffDays} DAYS AGO`, 
+          color: 'bg-gray-500' 
+        };
+      }
+    } catch (error) {
+      console.error('Date processing error:', error);
+      return { text: 'NEW', color: 'bg-green-500' };
+    }
+  };
+
+  const badgeConfig = getDateStatus(createdAt);
 
   return (
-    <div className={`absolute top-4 left-4 z-10 ${badgeConfig.color} text-white text-xs font-bold px-3 py-1 rounded-full shadow-md`}>
+    <div className={`absolute top-4 right-4 z-10 ${badgeConfig.color} text-white text-xs font-bold px-3 py-1 rounded-full shadow-md`}>
       {badgeConfig.text}
     </div>
   );
