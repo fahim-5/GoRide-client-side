@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { useSpring, animated, config } from '@react-spring/web';
+import { formatDistanceToNow, isToday, isThisWeek } from 'date-fns';
 import { useVehicles } from '../pages/hooks/useVehicles';
 import VehicleCard from '../components/common/VehicleCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -7,11 +10,55 @@ import { useTheme } from '../context/ThemeContext';
 
 const HERO_IMAGE_URL = 'https://images.unsplash.com/photo-1725916631378-358ebe6ad000?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y2FyJTIwZHJhd2luZ3xlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&q=60&w=600';
 
+// React Spring Animated Counter
+const AnimatedCounter = ({ value }) => {
+  const { number } = useSpring({
+    from: { number: 0 },
+    to: { number: value },
+    delay: 500,
+    config: config.molasses,
+  });
+
+  return <animated.span>{number.to(n => n.toFixed(0))}</animated.span>;
+};
+
+// Date-fns Date Badge
+const DateBadge = ({ createdAt }) => {
+  if (!createdAt) {
+    return (
+      <div className="absolute top-4 left-4 z-10 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
+        NEW
+      </div>
+    );
+  }
+  
+  const date = new Date(createdAt);
+  let badgeConfig = { text: 'NEW', color: 'bg-green-500' };
+  
+  if (isToday(date)) {
+    badgeConfig = { text: 'TODAY', color: 'bg-red-500' };
+  } else if (isThisWeek(date)) {
+    badgeConfig = { text: 'THIS WEEK', color: 'bg-orange-500' };
+  } else {
+    badgeConfig = { 
+      text: formatDistanceToNow(date, { addSuffix: true }), 
+      color: 'bg-blue-500' 
+    };
+  }
+
+  return (
+    <div className={`absolute top-4 left-4 z-10 ${badgeConfig.color} text-white text-xs font-bold px-3 py-1 rounded-full shadow-md`}>
+      {badgeConfig.text}
+    </div>
+  );
+};
+
 const Home = () => {
   const { getLatestVehicles, loading } = useVehicles();
   const { isDark } = useTheme();
   const [latestVehicles, setLatestVehicles] = useState([]);
 
+  // KEEP YOUR EXACT SAME DATA FETCHING LOGIC
   useEffect(() => {
     const fetchLatestVehicles = async () => {
       try {
@@ -19,7 +66,7 @@ const Home = () => {
         const vehicles = await getLatestVehicles();
         console.log('🚗 Raw vehicles response:', vehicles);
         
-        // Get latest 6 vehicles
+        // Get latest 6 vehicles - EXACT SAME LOGIC
         const latestSix = Array.isArray(vehicles) ? vehicles.slice(0, 6) : [];
         console.log('✅ Final 6 vehicles:', latestSix);
         setLatestVehicles(latestSix);
@@ -59,7 +106,12 @@ const Home = () => {
         </div>
 
         {/* Hero Content */}
-        <div className="relative z-10 text-center px-4 max-w-6xl mx-auto">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="relative z-10 text-center px-4 max-w-6xl mx-auto"
+        >
           <div className="mb-8">
             <div className={`inline-flex items-center space-x-3 backdrop-blur-md rounded-full px-6 py-3 border mb-8 ${
               isDark
@@ -73,62 +125,90 @@ const Home = () => {
             </div>
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-black text-white mb-6 leading-tight">
+          <motion.h1 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-5xl md:text-7xl font-black text-white mb-6 leading-tight"
+          >
             Travel With
-            <span className={`block bg-gradient-to-r bg-clip-text text-transparent ${
-              isDark
-                ? 'from-green-300 to-green-200'
-                : 'from-green-200 to-green-300'
-            }`}>
+            <motion.span 
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+              className={`block bg-gradient-to-r bg-clip-text text-transparent ${
+                isDark
+                  ? 'from-green-300 to-green-200'
+                  : 'from-green-200 to-green-300'
+              }`}
+            >
               Ease
-            </span>
-          </h1>
+            </motion.span>
+          </motion.h1>
           
-          <p className="text-xl md:text-2xl text-white/80 mb-12 max-w-3xl mx-auto leading-relaxed font-light">
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="text-xl md:text-2xl text-white/80 mb-12 max-w-3xl mx-auto leading-relaxed font-light"
+          >
             Premium vehicle rentals with seamless booking. Experience the freedom of the road with our curated fleet.
-          </p>
+          </motion.p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link 
-              to="/vehicles"
-              className={`group px-8 py-4 rounded-2xl font-bold hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 inline-flex items-center space-x-3 shadow-lg ${
-                isDark
-                  ? 'bg-white text-gray-900 hover:bg-gray-100'
-                  : 'bg-white text-green-900'
-              }`}
-            >
-              <span>All Vehicles</span>
-              <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </Link>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+          >
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link 
+                to="/vehicles"
+                className={`group px-8 py-4 rounded-2xl font-bold hover:shadow-2xl transition-all duration-300 inline-flex items-center space-x-3 shadow-lg ${
+                  isDark
+                    ? 'bg-white text-gray-900 hover:bg-gray-100'
+                    : 'bg-white text-green-900'
+                }`}
+              >
+                <span>All Vehicles</span>
+                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Link>
+            </motion.div>
             
-            <Link 
-              to="/add-vehicle"
-              className={`group border-2 px-8 py-4 rounded-2xl font-bold backdrop-blur-sm transition-all duration-300 transform hover:-translate-y-1 inline-flex items-center space-x-3 ${
-                isDark
-                  ? 'border-white/20 text-white hover:bg-white/5'
-                  : 'border-white/30 text-white hover:bg-white/10'
-              }`}
-            >
-              <span>List Your Vehicle</span>
-              <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-            </Link>
-          </div>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link 
+                to="/add-vehicle"
+                className={`group border-2 px-8 py-4 rounded-2xl font-bold backdrop-blur-sm transition-all duration-300 inline-flex items-center space-x-3 ${
+                  isDark
+                    ? 'border-white/20 text-white hover:bg-white/5'
+                    : 'border-white/30 text-white hover:bg-white/10'
+                }`}
+              >
+                <span>List Your Vehicle</span>
+                <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              </Link>
+            </motion.div>
+          </motion.div>
+        </motion.div>
 
-          {/* Scroll indicator */}
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-            <div className={`w-6 h-10 border-2 rounded-full flex justify-center ${
-              isDark ? 'border-white/20' : 'border-white/30'
-            }`}>
-              <div className={`w-1 h-3 rounded-full mt-2 ${
-                isDark ? 'bg-white/40' : 'bg-white/50'
-              }`}></div>
-            </div>
+        {/* Scroll indicator */}
+        <motion.div 
+          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <div className={`w-6 h-10 border-2 rounded-full flex justify-center ${
+            isDark ? 'border-white/20' : 'border-white/30'
+          }`}>
+            <div className={`w-1 h-3 rounded-full mt-2 ${
+              isDark ? 'bg-white/40' : 'bg-white/50'
+            }`}></div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* DYNAMIC SECTION - Latest 6 Vehicles */}
@@ -147,7 +227,13 @@ const Home = () => {
 
         <div className="container mx-auto px-4 relative z-10">
           {/* Header Section */}
-          <div className="text-center mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
             <div className="inline-flex items-center gap-3 mb-6 px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-700 rounded-full shadow-md">
               <span className="relative flex h-2.5 w-2.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white/80 opacity-75"></span>
@@ -170,9 +256,9 @@ const Home = () => {
             </p>
 
             <div className="w-28 h-1.5 bg-gradient-to-r from-green-500 to-green-600 mx-auto mb-8 rounded-full"></div>
-          </div>
+          </motion.div>
 
-          {/* Latest Vehicles Grid - 6 vehicles */}
+          {/* Latest Vehicles Grid - 6 vehicles - SIMPLIFIED DISPLAY */}
           {loading ? (
             <div className="flex justify-center items-center py-32">
               <LoadingSpinner />
@@ -182,19 +268,22 @@ const Home = () => {
             </div>
           ) : latestVehicles.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-              {latestVehicles.map((vehicle) => (
-                <div
+              {latestVehicles.map((vehicle, index) => (
+                <motion.div
                   key={vehicle._id}
-                  className={`group relative rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 ${
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  whileHover={{ scale: 1.03 }}
+                  className={`group relative rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 ${
                     isDark ? 'bg-gray-800' : 'bg-white'
                   }`}
                 >
-                  {/* New badge for recently added vehicles */}
-                  <div className="absolute top-4 left-4 z-10 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
-                    NEW
-                  </div>
+                  {/* Date-fns Integration */}
+                  <DateBadge createdAt={vehicle.createdAt} />
                   <VehicleCard vehicle={vehicle} />
-                </div>
+                </motion.div>
               ))}
             </div>
           ) : (
@@ -228,17 +317,25 @@ const Home = () => {
           )}
 
           {/* CTA */}
-          <div className="text-center">
-            <Link
-              to="/vehicles"
-              className="group inline-flex items-center space-x-3 bg-gradient-to-r from-green-600 to-green-700 text-white px-10 py-5 rounded-2xl font-semibold hover:from-green-700 hover:to-green-800 transition-all duration-300 transform hover:-translate-y-1 shadow-xl hover:shadow-2xl"
-            >
-              <span>View All Vehicles</span>
-              <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Link>
-          </div>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center"
+          >
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link
+                to="/vehicles"
+                className="group inline-flex items-center space-x-3 bg-gradient-to-r from-green-600 to-green-700 text-white px-10 py-5 rounded-2xl font-semibold hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-xl hover:shadow-2xl"
+              >
+                <span>View All Vehicles</span>
+                <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
@@ -247,7 +344,13 @@ const Home = () => {
         isDark ? 'bg-gray-900' : 'bg-white'
       }`}>
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
             <h2 className={`text-4xl md:text-5xl font-bold mb-6 ${
               isDark ? 'text-white' : 'text-gray-900'
             }`}>
@@ -258,7 +361,7 @@ const Home = () => {
             }`}>
               Choose from our carefully curated vehicle categories for every travel need
             </p>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
@@ -291,8 +394,13 @@ const Home = () => {
                 color: 'from-purple-500 to-purple-600'
               }
             ].map((category, index) => (
-              <div 
+              <motion.div 
                 key={category.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                whileHover={{ y: -5 }}
                 className={`group text-center p-8 rounded-2xl border transition-all duration-300 hover:shadow-xl ${
                   isDark
                     ? 'border-gray-700 hover:border-green-600 bg-gradient-to-b from-gray-800 to-gray-900'
@@ -313,7 +421,7 @@ const Home = () => {
                   {category.desc}
                 </p>
                 <div className="text-green-600 font-semibold">{category.count}</div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -328,7 +436,12 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             {/* Content */}
-            <div>
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
               <div className="mb-8">
                 <span className="text-green-600 font-semibold text-sm uppercase tracking-wider">About Us</span>
                 <h2 className={`text-4xl font-bold mt-2 mb-6 ${
@@ -350,17 +463,24 @@ const Home = () => {
                 </p>
               </div>
               
+              {/* React Spring Animated Counters */}
               <div className="grid grid-cols-2 gap-6 mb-8">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600 mb-2">500+</div>
+                  <div className="text-3xl font-bold text-green-600 mb-2">
+                    <AnimatedCounter value={500} />+
+                  </div>
                   <div className={isDark ? 'text-gray-400' : 'text-gray-600'}>Vehicles</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600 mb-2">100+</div>
+                  <div className="text-3xl font-bold text-green-600 mb-2">
+                    <AnimatedCounter value={100} />+
+                  </div>
                   <div className={isDark ? 'text-gray-400' : 'text-gray-600'}>Locations</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600 mb-2">1K+</div>
+                  <div className="text-3xl font-bold text-green-600 mb-2">
+                    <AnimatedCounter value={1000} />+
+                  </div>
                   <div className={isDark ? 'text-gray-400' : 'text-gray-600'}>Happy Customers</div>
                 </div>
                 <div className="text-center">
@@ -378,7 +498,7 @@ const Home = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </Link>
-            </div>
+            </motion.div>
 
             {/* Feature Cards */}
             <div className="space-y-6">
@@ -404,9 +524,16 @@ const Home = () => {
                   icon: '📞'
                 }
               ].map((feature, index) => (
-                <div key={feature.title} className={`flex items-start space-x-4 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 ${
-                  isDark ? 'bg-gray-800' : 'bg-white'
-                }`}>
+                <motion.div 
+                  key={feature.title}
+                  initial={{ opacity: 0, x: 30 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className={`flex items-start space-x-4 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 ${
+                    isDark ? 'bg-gray-800' : 'bg-white'
+                  }`}
+                >
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
                     isDark ? 'bg-green-900/30' : 'bg-green-100'
                   }`}>
@@ -422,7 +549,7 @@ const Home = () => {
                       {feature.desc}
                     </p>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
